@@ -70,7 +70,7 @@ configure_tools() {
 
 interactive_menu() {
     while :; do
-        select_menu "Escolha um tópico para configurar:" \
+        select_menu "Tópicos de configuração:" \
             "Rede" \
             "Flatpak" \
             "Ferramentas de desktop e jogos" \

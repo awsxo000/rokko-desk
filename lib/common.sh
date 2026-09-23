@@ -29,12 +29,14 @@ render_banner() {
         reset=''
     fi
 
-    printf '%b\n' "${blue}                  /\\        /\\                  ${reset}"
-    printf '%b\n' "${blue}                 /  \\  /\\  /  \\                 ${reset}"
-    printf '%b\n' "${blue}                / /\\ \\/  \\/ /\\ \\                ${reset}"
-    printf '%b\n' "${blue}               /_/  \\____/  \\_\\               ${reset}"
-    printf '%b\n' "${cyan}                    A L P I N E                    ${reset}"
-    printf '%b\n' "${white}                        Rokko                       ${reset}"
+    printf '%b\n' "${cyan}────────────────────────────────────────────────────────────────────────────${reset}"
+    printf '%b\n' "${blue}     █████  ██       ██████  ██  ███    ██ ███████${reset}"
+    printf '%b\n' "${blue}    ██      ██      ██      ██  ████   ██ ██     ${reset}"
+    printf '%b\n' "${cyan}    █████   ██      ██      ██  ██ ██  ██ █████  ${reset}"
+    printf '%b\n' "${cyan}    ██      ██      ██      ██  ██  ██ ██ ██     ${reset}"
+    printf '%b\n' "${blue}    █████   ███████  ██████  ██  ██   ████ ███████${reset}"
+    printf '%b\n' "${white}                         Rokko${reset}"
+    printf '%b\n' "${cyan}────────────────────────────────────────────────────────────────────────────${reset}"
     printf '\n'
 }
 
