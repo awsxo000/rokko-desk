@@ -82,6 +82,17 @@ read_menu_key() {
     fi
 }
 
+pad_to_width() {
+    pad_text=$1
+    pad_width=$2
+    pad_current=$(printf '%s' "$pad_text" | wc -m | tr -d ' ')
+    printf '%s' "$pad_text"
+    while [ "$pad_current" -lt "$pad_width" ]; do
+        printf ' '
+        pad_current=$((pad_current + 1))
+    done
+}
+
 select_menu() {
     menu_prompt=$1
     shift
@@ -107,16 +118,16 @@ select_menu() {
         clear_screen
         render_banner
         printf '%b\n' "${ui_border}╭────────────────────────────────────────────────────────────────────────────╮${ui_reset}"
-        printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(printf '%-70s' "$menu_prompt")" "${ui_reset}  ${ui_border}│${ui_reset}"
+        printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(pad_to_width "$menu_prompt" 72)" "${ui_reset}  ${ui_border}│${ui_reset}"
         printf '%b\n' "${ui_border}├────────────────────────────────────────────────────────────────────────────┤${ui_reset}"
         menu_index=1
         for menu_item in "$@"; do
             if [ "$menu_index" -eq "$menu_current" ]; then
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}● " "$(printf '%-70s' "$menu_item")" "${ui_reset}  ${ui_border}│${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}● " "$(pad_to_width "$menu_item" 70)" "${ui_reset}  ${ui_border}│${ui_reset}"
             else
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}•${ui_reset} " "$(printf '%-70s' "$menu_item")" "  ${ui_border}│${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}•${ui_reset} " "$(pad_to_width "$menu_item" 70)" "  ${ui_border}│${ui_reset}"
             fi
-            printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(printf '%-70s' '')" "  ${ui_border}│${ui_reset}"
+            printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(pad_to_width '' 70)" "  ${ui_border}│${ui_reset}"
             menu_index=$((menu_index + 1))
         done
         printf '%b\n' "${ui_border}╰────────────────────────────────────────────────────────────────────────────╯${ui_reset}"
