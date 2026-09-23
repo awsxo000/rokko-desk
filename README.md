@@ -36,7 +36,7 @@ A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
 
-Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A opção ativa é indicada visualmente por `▶`. A interface não depende de números para a navegação.
+Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. Cada opção recebe um marcador `•`, enquanto a opção ativa recebe um marcador `●` em cor de destaque. Há uma linha de respiro entre as opções para facilitar a leitura. A interface não depende de números para a navegação.
 
 ## Organização por tópicos
 

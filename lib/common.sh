@@ -92,7 +92,7 @@ select_menu() {
     if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
         ui_border='\033[2;37m'
         ui_title='\033[1;36m'
-        ui_selected='\033[30;46m'
+        ui_selected='\033[1;36m'
         ui_muted='\033[2;37m'
         ui_reset='\033[0m'
     else
@@ -112,10 +112,11 @@ select_menu() {
         menu_index=1
         for menu_item in "$@"; do
             if [ "$menu_index" -eq "$menu_current" ]; then
-                printf '%b%s%b\n' "${ui_selected}│  ▶ " "$(printf '%-56s' "$menu_item")" "  │${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}● " "$(printf '%-54s' "$menu_item")" "${ui_reset}  ${ui_border}│${ui_reset}"
             else
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(printf '%-56s' "$menu_item")" "  ${ui_border}│${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}•${ui_reset} " "$(printf '%-54s' "$menu_item")" "  ${ui_border}│${ui_reset}"
             fi
+            printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(printf '%-54s' '')" "  ${ui_border}│${ui_reset}"
             menu_index=$((menu_index + 1))
         done
         printf '%b\n' "${ui_border}╰──────────────────────────────────────────────────────────────╯${ui_reset}"
