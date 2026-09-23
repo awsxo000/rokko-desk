@@ -33,23 +33,28 @@ done
 
 require_alpine
 
-CHOICE_NETWORKMANAGER=0
+NETWORK_BACKEND=keep
 CHOICE_FLATPAK=0
 CHOICE_TOOLS=0
 
 if [ "$ASSUME_YES" -eq 1 ]; then
-    CHOICE_NETWORKMANAGER=1
+    NETWORK_BACKEND=networkmanager
 else
     clear_screen
     printf '%s\n' "RokkoDesk — configuração guiada para Alpine Linux"
     printf '%s\n\n' "Escolha os componentes que deseja instalar. Responda s/n."
-    ask_yes_no "Instalar o NetworkManager?" "n" && CHOICE_NETWORKMANAGER=1
+    ask_network_backend
     ask_yes_no "Instalar Flatpak?" "n" && CHOICE_FLATPAK=1
     ask_yes_no "Instalar ferramentas básicas para desktop/jogos?" "n" && CHOICE_TOOLS=1
 fi
 
 printf '\n%s\n' "Plano selecionado:"
-[ "$CHOICE_NETWORKMANAGER" -eq 1 ] && printf '  [x] NetworkManager\n' || printf '  [ ] NetworkManager\n'
+case "$NETWORK_BACKEND" in
+    networkmanager) printf '  [x] NetworkManager\n' ;;
+    native) printf '  [x] Gerenciador nativo do Alpine (ifupdown-ng/networking)\n' ;;
+    restore-native) printf '  [x] Restaurar gerenciador nativo e desativar NetworkManager\n' ;;
+    keep) printf '  [x] Manter configuração de rede atual\n' ;;
+esac
 [ "$CHOICE_FLATPAK" -eq 1 ] && printf '  [x] Flatpak\n' || printf '  [ ] Flatpak\n'
 [ "$CHOICE_TOOLS" -eq 1 ] && printf '  [x] Ferramentas básicas\n' || printf '  [ ] Ferramentas básicas\n'
 
@@ -64,7 +69,10 @@ fi
 
 require_root
 
-[ "$CHOICE_NETWORKMANAGER" -eq 1 ] && run_module networkmanager
+case "$NETWORK_BACKEND" in
+    networkmanager) run_module networkmanager ;;
+    native|restore-native) run_module native-networking ;;
+esac
 [ "$CHOICE_FLATPAK" -eq 1 ] && run_module flatpak
 [ "$CHOICE_TOOLS" -eq 1 ] && run_module desktop-tools
 

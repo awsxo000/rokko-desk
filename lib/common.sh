@@ -33,6 +33,25 @@ ask_yes_no() {
     done
 }
 
+ask_network_backend() {
+    printf '\n%s\n' "Como você deseja gerenciar a rede?"
+    printf '%s\n' "  1) NetworkManager — recomendado para desktop e Wi-Fi"
+    printf '%s\n' "  2) Gerenciador nativo do Alpine — ifupdown-ng/networking"
+    printf '%s\n' "  3) Manter a configuração atual — não alterar a rede"
+    printf '%s\n' "  4) Restaurar o gerenciador nativo e desativar o NetworkManager"
+    while :; do
+        printf '%s ' "Escolha [1-4]:"
+        IFS= read -r answer || answer=''
+        case "$answer" in
+            1) NETWORK_BACKEND=networkmanager; return 0 ;;
+            2) NETWORK_BACKEND=native; return 0 ;;
+            3) NETWORK_BACKEND=keep; return 0 ;;
+            4) NETWORK_BACKEND=restore-native; return 0 ;;
+            *) printf '%s\n' "Escolha 1, 2, 3 ou 4." ;;
+        esac
+    done
+}
+
 require_alpine() {
     if [ "${ALPINE_WIZARD_TEST:-0}" = "1" ]; then return 0; fi
     [ -f /etc/alpine-release ] || die "este programa precisa ser executado no Alpine Linux"
