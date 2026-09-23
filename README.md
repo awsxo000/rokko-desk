@@ -36,6 +36,10 @@ A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
 
+## Organização por tópicos
+
+A interface principal organiza a configuração em tópicos independentes. O usuário entra em `Rede`, `Flatpak` ou `Ferramentas de desktop e jogos`, configura aquele assunto e retorna ao menu principal. Em seguida, pode revisar o plano completo antes de aplicar qualquer alteração. O tópico de rede possui um submenu próprio para escolher NetworkManager, o gerenciador nativo do Alpine, manutenção da configuração atual ou restauração do padrão nativo.
+
 ## Arquitetura
 
 O executável principal contém apenas o fluxo de interação. Cada funcionalidade vive em um módulo independente em `modules/`. Essa separação permitirá incluir perfis e novas tarefas sem transformar o projeto em um script monolítico.

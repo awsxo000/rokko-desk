@@ -4,7 +4,6 @@ set -eu
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 . "$ROOT_DIR/lib/common.sh"
 
-PROFILE="desktop"
 DRY_RUN=0
 ASSUME_YES=0
 
@@ -12,7 +11,7 @@ usage() {
     cat <<USAGE
 Uso: rokko-setup [opções]
 
-Instalador guiado e modular para configurações pós-instalação do Alpine Linux.
+Assistente guiado e modular do RokkoDesk para Alpine Linux.
 
 Opções:
   --plan       mostra o plano sem alterar o sistema
@@ -37,27 +36,64 @@ NETWORK_BACKEND=keep
 CHOICE_FLATPAK=0
 CHOICE_TOOLS=0
 
+show_plan() {
+    printf '\n%s\n' "Plano selecionado:"
+    case "$NETWORK_BACKEND" in
+        networkmanager) printf '  [x] Rede: NetworkManager\n' ;;
+        native) printf '  [x] Rede: gerenciador nativo do Alpine (ifupdown-ng/networking)\n' ;;
+        restore-native) printf '  [x] Rede: restaurar gerenciador nativo\n' ;;
+        keep) printf '  [ ] Rede: manter configuração atual\n' ;;
+    esac
+    [ "$CHOICE_FLATPAK" -eq 1 ] && printf '  [x] Flatpak\n' || printf '  [ ] Flatpak\n'
+    [ "$CHOICE_TOOLS" -eq 1 ] && printf '  [x] Ferramentas básicas\n' || printf '  [ ] Ferramentas básicas\n'
+}
+
+configure_flatpak() {
+    if ask_yes_no "Instalar Flatpak?" "n"; then
+        CHOICE_FLATPAK=1
+    else
+        CHOICE_FLATPAK=0
+    fi
+}
+
+configure_tools() {
+    if ask_yes_no "Instalar ferramentas básicas para desktop e jogos?" "n"; then
+        CHOICE_TOOLS=1
+    else
+        CHOICE_TOOLS=0
+    fi
+}
+
+interactive_menu() {
+    while :; do
+        clear_screen
+        render_banner
+        printf '%s\n\n' "Escolha um tópico para configurar:"
+        printf '  1) Rede\n'
+        printf '  2) Flatpak\n'
+        printf '  3) Ferramentas de desktop e jogos\n'
+        printf '  4) Revisar plano\n'
+        printf '  5) Sair\n\n'
+        printf '%s ' "Escolha [1-5]:"
+        IFS= read -r topic || topic=''
+        case "$topic" in
+            1) ask_network_backend || true ;;
+            2) configure_flatpak ;;
+            3) configure_tools ;;
+            4) return 0 ;;
+            5) printf '%s\n' "Até a próxima."; exit 0 ;;
+            *) printf '%s\n' "Escolha 1, 2, 3, 4 ou 5."; sleep 1 ;;
+        esac
+    done
+}
+
 if [ "$ASSUME_YES" -eq 1 ]; then
     NETWORK_BACKEND=networkmanager
 else
-    clear_screen
-    render_banner
-    printf '%s\n' "Assistente comunitário para preparar seu Alpine Linux."
-    printf '%s\n\n' "Escolha as opções digitando o número correspondente."
-    ask_network_backend
-    ask_yes_no "Instalar Flatpak?" "n" && CHOICE_FLATPAK=1
-    ask_yes_no "Instalar ferramentas básicas para desktop/jogos?" "n" && CHOICE_TOOLS=1
+    interactive_menu
 fi
 
-printf '\n%s\n' "Plano selecionado:"
-case "$NETWORK_BACKEND" in
-    networkmanager) printf '  [x] NetworkManager\n' ;;
-    native) printf '  [x] Gerenciador nativo do Alpine (ifupdown-ng/networking)\n' ;;
-    restore-native) printf '  [x] Restaurar gerenciador nativo e desativar NetworkManager\n' ;;
-    keep) printf '  [x] Manter configuração de rede atual\n' ;;
-esac
-[ "$CHOICE_FLATPAK" -eq 1 ] && printf '  [x] Flatpak\n' || printf '  [ ] Flatpak\n'
-[ "$CHOICE_TOOLS" -eq 1 ] && printf '  [x] Ferramentas básicas\n' || printf '  [ ] Ferramentas básicas\n'
+show_plan
 
 if [ "$DRY_RUN" -eq 1 ]; then
     printf '\nModo planejamento: nenhuma alteração será feita.\n'

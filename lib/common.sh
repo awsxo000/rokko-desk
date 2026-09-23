@@ -61,14 +61,16 @@ ask_network_backend() {
     printf '%s\n' "  2) Gerenciador nativo do Alpine — ifupdown-ng/networking"
     printf '%s\n' "  3) Manter a configuração atual — não alterar a rede"
     printf '%s\n' "  4) Restaurar o gerenciador nativo e desativar o NetworkManager"
+    printf '%s\n' "  5) Voltar ao menu principal"
     while :; do
-        printf '%s ' "Escolha [1-4]:"
+        printf '%s ' "Escolha [1-5]:"
         IFS= read -r answer || answer=''
         case "$answer" in
             1) NETWORK_BACKEND=networkmanager; return 0 ;;
             2) NETWORK_BACKEND=native; return 0 ;;
             3) NETWORK_BACKEND=keep; return 0 ;;
             4) NETWORK_BACKEND=restore-native; return 0 ;;
+            5) return 1 ;;
             *) printf '%s\n' "Escolha 1, 2, 3 ou 4." ;;
         esac
     done
