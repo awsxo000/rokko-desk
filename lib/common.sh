@@ -1,6 +1,13 @@
 #!/bin/sh
 
-PROJECT_ROOT=${PROJECT_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}
+if [ -z "${PROJECT_ROOT:-}" ]; then
+    SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+    if [ -d "$SCRIPT_DIR/../modules" ]; then
+        PROJECT_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+    else
+        PROJECT_ROOT=/usr/share/alpine-wizard
+    fi
+fi
 
 log() { printf '[alpine-wizard] %s\n' "$*"; }
 die() { printf '[alpine-wizard] erro: %s\n' "$*" >&2; exit 1; }
