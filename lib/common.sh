@@ -95,6 +95,95 @@ pad_to_width() {
     done
 }
 
+terminal_columns() {
+    columns=$(tput cols 2>/dev/null || true)
+    case "$columns" in
+        ''|*[!0-9]*) columns=80 ;;
+    esac
+    printf '%s' "$columns"
+}
+
+system_status_panel() {
+    status_version=$(cat /etc/alpine-release 2>/dev/null || printf '%s' 'ambiente de teste')
+    status_load=$(awk '{print $1}' /proc/loadavg 2>/dev/null || printf '%s' '-')
+    status_mem=$(awk '/MemTotal:/ { total=$2 } /MemAvailable:/ { available=$2 } END { if (total) printf "%.1f/%.1f GB", (total-available)/1048576, total/1048576; else print "-" }' /proc/meminfo 2>/dev/null)
+    if command -v ip >/dev/null 2>&1 && ip route show default 2>/dev/null | grep -q .; then
+        status_net='conectada'
+    else
+        status_net='não detectada'
+    fi
+    printf '%s\n' "$status_version|$status_load|$status_mem|$status_net"
+}
+
+select_main_menu() {
+    menu_prompt=$1
+    shift
+    menu_count=$#
+    menu_current=1
+    [ "$menu_count" -gt 0 ] || return 1
+
+    if [ "$(terminal_columns)" -lt 100 ]; then
+        select_menu "$menu_prompt" "$@"
+        return $?
+    fi
+
+    if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
+        ui_border='\033[2;37m'
+        ui_title='\033[1;36m'
+        ui_selected='\033[1;36m'
+        ui_muted='\033[2;37m'
+        ui_reset='\033[0m'
+    else
+        ui_border=''
+        ui_title=''
+        ui_selected=''
+        ui_muted=''
+        ui_reset=''
+    fi
+
+    status_data=$(system_status_panel)
+    status_version=${status_data%%|*}
+    status_rest=${status_data#*|}
+    status_load=${status_rest%%|*}
+    status_rest=${status_rest#*|}
+    status_mem=${status_rest%%|*}
+    status_net=${status_rest#*|}
+
+    while :; do
+        clear_screen
+        render_banner
+        printf '%b\n' "${ui_border}╭──────────────────────────────────────────────╮    ╭──────────────────────────────╮${ui_reset}"
+        printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(pad_to_width "$menu_prompt" 46)" "${ui_reset}  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  ${ui_title}" "$(pad_to_width 'Status do sistema' 30)" "${ui_reset}  ${ui_border}│${ui_reset}"
+        printf '%b\n' "${ui_border}├──────────────────────────────────────────────┤    ├──────────────────────────────┤${ui_reset}"
+        menu_index=1
+        for menu_item in "$@"; do
+            case "$menu_index" in
+                1) status_line='Alpine: '"$status_version" ;;
+                2) status_line='Load: '"$status_load" ;;
+                3) status_line='RAM: '"$status_mem" ;;
+                4) status_line='Rede: '"$status_net" ;;
+                *) status_line='RokkoDesk: pronto' ;;
+            esac
+            if [ "$menu_index" -eq "$menu_current" ]; then
+                printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}" "$(pad_to_width "$menu_item" 46)" "${ui_reset}  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  ${ui_muted}" "$(pad_to_width "$status_line" 30)" "${ui_reset}  ${ui_border}│${ui_reset}"
+            else
+                printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  " "$(pad_to_width "$menu_item" 46)" "  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  ${ui_muted}" "$(pad_to_width "$status_line" 30)" "${ui_reset}  ${ui_border}│${ui_reset}"
+            fi
+            printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  " "$(pad_to_width '' 46)" "  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  " "$(pad_to_width '' 30)" "  ${ui_border}│${ui_reset}"
+            menu_index=$((menu_index + 1))
+        done
+        printf '%b\n' "${ui_border}╰──────────────────────────────────────────────╯    ╰──────────────────────────────╯${ui_reset}"
+        printf '\n%b\n' "${ui_muted}  ↑/↓ Navegar    Enter Configurar    Ctrl+C Sair${ui_reset}"
+
+        read_menu_key || return 1
+        case "$MENU_KEY" in
+            up) menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count ;;
+            down) menu_current=$((menu_current + 1)); [ "$menu_current" -le "$menu_count" ] || menu_current=1 ;;
+            enter) MENU_SELECTION=$menu_current; return 0 ;;
+        esac
+    done
+}
+
 select_menu() {
     menu_prompt=$1
     shift
