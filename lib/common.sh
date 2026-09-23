@@ -16,6 +16,28 @@ clear_screen() {
     if command -v clear >/dev/null 2>&1 && [ -t 1 ]; then clear; fi
 }
 
+render_banner() {
+    if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
+        blue='\033[1;34m'
+        cyan='\033[1;36m'
+        white='\033[1;37m'
+        reset='\033[0m'
+    else
+        blue=''
+        cyan=''
+        white=''
+        reset=''
+    fi
+
+    printf '%b\n' "${blue}                  /\\        /\\                  ${reset}"
+    printf '%b\n' "${blue}                 /  \\  /\\  /  \\                 ${reset}"
+    printf '%b\n' "${blue}                / /\\ \\/  \\/ /\\ \\                ${reset}"
+    printf '%b\n' "${blue}               /_/  \\____/  \\_\\               ${reset}"
+    printf '%b\n' "${cyan}                    A L P I N E                    ${reset}"
+    printf '%b\n' "${white}                        Rokko                       ${reset}"
+    printf '\n'
+}
+
 ask_yes_no() {
     question=$1
     default=${2:-n}

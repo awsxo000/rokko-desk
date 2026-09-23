@@ -41,8 +41,9 @@ if [ "$ASSUME_YES" -eq 1 ]; then
     NETWORK_BACKEND=networkmanager
 else
     clear_screen
-    printf '%s\n' "RokkoDesk — configuração guiada para Alpine Linux"
-    printf '%s\n\n' "Escolha os componentes que deseja instalar. Responda s/n."
+    render_banner
+    printf '%s\n' "Assistente comunitário para preparar seu Alpine Linux."
+    printf '%s\n\n' "Escolha as opções digitando o número correspondente."
     ask_network_backend
     ask_yes_no "Instalar Flatpak?" "n" && CHOICE_FLATPAK=1
     ask_yes_no "Instalar ferramentas básicas para desktop/jogos?" "n" && CHOICE_TOOLS=1
