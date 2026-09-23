@@ -55,25 +55,88 @@ ask_yes_no() {
     done
 }
 
-ask_network_backend() {
-    printf '\n%s\n' "Como você deseja gerenciar a rede?"
-    printf '%s\n' "  1) NetworkManager — recomendado para desktop e Wi-Fi"
-    printf '%s\n' "  2) Gerenciador nativo do Alpine — ifupdown-ng/networking"
-    printf '%s\n' "  3) Manter a configuração atual — não alterar a rede"
-    printf '%s\n' "  4) Restaurar o gerenciador nativo e desativar o NetworkManager"
-    printf '%s\n' "  5) Voltar ao menu principal"
+read_menu_key() {
+    old_stty=$(stty -g 2>/dev/null) || return 1
+    stty -icanon -echo min 1 time 0 2>/dev/null || return 1
+    key=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
+    if [ "$(printf '%s' "$key" | od -An -t x1 | tr -d ' \n')" = "1b" ]; then
+        key2=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
+        key3=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
+        case "$key2$key3" in
+            '[A') key=up ;;
+            '[B') key=down ;;
+            '[C') key=right ;;
+            '[D') key=left ;;
+            *) key='' ;;
+        esac
+    fi
+    stty "$old_stty" 2>/dev/null || true
+    if [ -z "$key" ] || [ "$key" = "$(printf '\n')" ]; then
+        MENU_KEY=enter
+    else
+        case "$key" in
+            up|k) MENU_KEY=up ;;
+            down|j) MENU_KEY=down ;;
+            *) MENU_KEY=other ;;
+        esac
+    fi
+}
+
+select_menu() {
+    menu_prompt=$1
+    shift
+    menu_current=1
+    menu_count=$#
+    [ "$menu_count" -gt 0 ] || return 1
+
     while :; do
-        printf '%s ' "Escolha [1-5]:"
-        IFS= read -r answer || answer=''
-        case "$answer" in
-            1) NETWORK_BACKEND=networkmanager; return 0 ;;
-            2) NETWORK_BACKEND=native; return 0 ;;
-            3) NETWORK_BACKEND=keep; return 0 ;;
-            4) NETWORK_BACKEND=restore-native; return 0 ;;
-            5) return 1 ;;
-            *) printf '%s\n' "Escolha 1, 2, 3 ou 4." ;;
+        clear_screen
+        render_banner
+        printf '%s\n\n' "$menu_prompt"
+        menu_index=1
+        for menu_item in "$@"; do
+            if [ "$menu_index" -eq "$menu_current" ]; then
+                printf '  %s %s\n' '▶' "$menu_item"
+            else
+                printf '    %s\n' "$menu_item"
+            fi
+            menu_index=$((menu_index + 1))
+        done
+        printf '\n%s\n' 'Use ↑/↓ para navegar e Enter para selecionar.'
+
+        read_menu_key || return 1
+        case "$MENU_KEY" in
+            up)
+                menu_current=$((menu_current - 1))
+                [ "$menu_current" -ge 1 ] || menu_current=$menu_count
+                ;;
+            down)
+                menu_current=$((menu_current + 1))
+                [ "$menu_current" -le "$menu_count" ] || menu_current=1
+                ;;
+            enter)
+                MENU_SELECTION=$menu_current
+                return 0
+                ;;
         esac
     done
+}
+
+ask_network_backend() {
+    select_menu "Como você deseja gerenciar a rede?" \
+        "NetworkManager — recomendado para desktop e Wi-Fi" \
+        "Gerenciador nativo do Alpine — ifupdown-ng/networking" \
+        "Manter a configuração atual — não alterar a rede" \
+        "Restaurar o gerenciador nativo e desativar o NetworkManager" \
+        "Voltar ao menu principal" || return 1
+    case "$MENU_SELECTION" in
+        1) NETWORK_BACKEND=networkmanager ;;
+        2) NETWORK_BACKEND=native ;;
+        3) NETWORK_BACKEND=keep ;;
+        4) NETWORK_BACKEND=restore-native ;;
+        5) return 1 ;;
+    esac
+    return 0
 }
 
 require_alpine() {

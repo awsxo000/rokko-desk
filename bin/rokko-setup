@@ -49,7 +49,8 @@ show_plan() {
 }
 
 configure_flatpak() {
-    if ask_yes_no "Instalar Flatpak?" "n"; then
+    select_menu "Flatpak" "Instalar Flatpak" "Não instalar Flatpak" || return 0
+    if [ "$MENU_SELECTION" -eq 1 ]; then
         CHOICE_FLATPAK=1
     else
         CHOICE_FLATPAK=0
@@ -57,7 +58,10 @@ configure_flatpak() {
 }
 
 configure_tools() {
-    if ask_yes_no "Instalar ferramentas básicas para desktop e jogos?" "n"; then
+    select_menu "Ferramentas de desktop e jogos" \
+        "Instalar ferramentas básicas" \
+        "Não instalar ferramentas básicas" || return 0
+    if [ "$MENU_SELECTION" -eq 1 ]; then
         CHOICE_TOOLS=1
     else
         CHOICE_TOOLS=0
@@ -66,23 +70,18 @@ configure_tools() {
 
 interactive_menu() {
     while :; do
-        clear_screen
-        render_banner
-        printf '%s\n\n' "Escolha um tópico para configurar:"
-        printf '  1) Rede\n'
-        printf '  2) Flatpak\n'
-        printf '  3) Ferramentas de desktop e jogos\n'
-        printf '  4) Revisar plano\n'
-        printf '  5) Sair\n\n'
-        printf '%s ' "Escolha [1-5]:"
-        IFS= read -r topic || topic=''
-        case "$topic" in
+        select_menu "Escolha um tópico para configurar:" \
+            "Rede" \
+            "Flatpak" \
+            "Ferramentas de desktop e jogos" \
+            "Revisar plano" \
+            "Sair" || exit 0
+        case "$MENU_SELECTION" in
             1) ask_network_backend || true ;;
             2) configure_flatpak ;;
             3) configure_tools ;;
             4) return 0 ;;
             5) printf '%s\n' "Até a próxima."; exit 0 ;;
-            *) printf '%s\n' "Escolha 1, 2, 3, 4 ou 5."; sleep 1 ;;
         esac
     done
 }
@@ -101,7 +100,8 @@ if [ "$DRY_RUN" -eq 1 ]; then
 fi
 
 if [ "$ASSUME_YES" -eq 0 ]; then
-    ask_yes_no "Aplicar este plano agora?" "n" || { printf '%s\n' "Cancelado."; exit 0; }
+    select_menu "Aplicar este plano agora?" "Aplicar alterações" "Voltar sem alterar o sistema" || exit 0
+    [ "$MENU_SELECTION" -eq 1 ] || { printf '%s\n' "Cancelado."; exit 0; }
 fi
 
 require_root
