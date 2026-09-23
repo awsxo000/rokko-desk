@@ -40,7 +40,7 @@ A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pod
 
 O executável principal contém apenas o fluxo de interação. Cada funcionalidade vive em um módulo independente em `modules/`. Essa separação permitirá incluir perfis e novas tarefas sem transformar o projeto em um script monolítico.
 
-Os módulos iniciais são NetworkManager, Flatpak e ferramentas básicas de desktop. Os próximos módulos previstos incluem áudio, gráficos, Steam/compatibilidade, criação de perfis e personalização. Cada módulo deverá ser idempotente, documentado e desativável.
+Os módulos iniciais são NetworkManager, Flatpak e ferramentas básicas de desktop. O módulo de NetworkManager instala `eudev`, `networkmanager` e `networkmanager-wifi`, prepara a configuração padrão, associa o usuário ao grupo `plugdev` quando possível e evita a concorrência com `networking` e `wpa_supplicant`. Configurações existentes são preservadas para revisão manual. Os próximos módulos previstos incluem áudio, gráficos, Steam/compatibilidade, criação de perfis e personalização. Cada módulo deverá ser idempotente, documentado e desativável.
 
 ## Empacotamento
 
@@ -59,3 +59,7 @@ A pasta `packaging/` contém um exemplo inicial de `APKBUILD`. O pacote deverá 
 ## Próximo passo
 
 Incorporar a documentação oficial que será fornecida pelo mantenedor e revisar, módulo por módulo, os pacotes, serviços OpenRC, repositórios, permissões e condições de compatibilidade.
+
+## Referência do módulo NetworkManager
+
+O primeiro módulo foi baseado na documentação oficial do Alpine Wiki sobre [NetworkManager](https://wiki.alpinelinux.org/wiki/NetworkManager), consultada em 23 de setembro de 2026. A documentação recomenda habilitar o repositório `community`, configurar `eudev`, instalar `networkmanager` e `networkmanager-wifi`, usar o grupo `plugdev`, manter apenas o NetworkManager como serviço de gerenciamento de rede e configurar `NetworkManager.conf` com os plugins `ifupdown,keyfile` e `managed=true`.
