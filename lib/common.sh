@@ -30,12 +30,12 @@ render_banner() {
     fi
 
     printf '%b\n' "${cyan}────────────────────────────────────────────────────────────────────────────${reset}"
-    printf '%b\n' "${blue}     █████  ██       ██████  ██  ███    ██ ███████${reset}"
-    printf '%b\n' "${blue}    ██      ██      ██      ██  ████   ██ ██     ${reset}"
-    printf '%b\n' "${cyan}    █████   ██      ██      ██  ██ ██  ██ █████  ${reset}"
-    printf '%b\n' "${cyan}    ██      ██      ██      ██  ██  ██ ██ ██     ${reset}"
-    printf '%b\n' "${blue}    █████   ███████  ██████  ██  ██   ████ ███████${reset}"
-    printf '%b\n' "${white}                         Rokko${reset}"
+    printf '%b\n' "${blue}     ███   █      ████  █████  █   █  █████${reset}"
+    printf '%b\n' "${blue}    █   █  █      █   █   █    ██  █  █     ${reset}"
+    printf '%b\n' "${cyan}    █████  █      ████    █    █ █ █  ████  ${reset}"
+    printf '%b\n' "${cyan}    █   █  █      █       █    █  ██  █     ${reset}"
+    printf '%b\n' "${blue}    █   █  █████  █       █    █   █  █████${reset}"
+    printf '%b\n' "${white}                              Rokko${reset}"
     printf '%b\n' "${cyan}────────────────────────────────────────────────────────────────────────────${reset}"
     printf '\n'
 }
