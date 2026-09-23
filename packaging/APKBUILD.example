@@ -1,9 +1,9 @@
 # Exemplo inicial; revisar conforme as regras do Alpine antes de publicar.
-pkgname=alpine-wizard
+pkgname=rokko-setup
 pkgver=0.1.0
 pkgrel=0
-pkgdesc="Assistente guiado para configuração pós-instalação do Alpine Linux"
-url="https://example.invalid/alpine-wizard"
+pkgdesc="Assistente guiado RokkoDesk para configuração desktop do Alpine Linux"
+url="https://example.invalid/rokko-setup"
 arch="noarch"
 license="MIT"
 depends="apk-tools"
@@ -12,9 +12,9 @@ source=""
 build() { :; }
 
 package() {
-    install -Dm755 "$srcdir/../../bin/alpine-wizard" "$pkgdir/usr/bin/alpine-wizard"
-    install -Dm644 "$srcdir/../../README.md" "$pkgdir/usr/share/doc/alpine-wizard/README.md"
-    install -d "$pkgdir/usr/share/alpine-wizard/lib" "$pkgdir/usr/share/alpine-wizard/modules"
-    install -m644 "$srcdir/../../lib/common.sh" "$pkgdir/usr/share/alpine-wizard/lib/common.sh"
-    install -m644 "$srcdir/../../modules/"*.sh "$pkgdir/usr/share/alpine-wizard/modules/"
+    install -Dm755 "$srcdir/../../bin/rokko-setup" "$pkgdir/usr/bin/rokko-setup"
+    install -Dm644 "$srcdir/../../README.md" "$pkgdir/usr/share/doc/rokko-setup/README.md"
+    install -d "$pkgdir/usr/share/rokko-setup/lib" "$pkgdir/usr/share/rokko-setup/modules"
+    install -m644 "$srcdir/../../lib/common.sh" "$pkgdir/usr/share/rokko-setup/lib/common.sh"
+    install -m644 "$srcdir/../../modules/"*.sh "$pkgdir/usr/share/rokko-setup/modules/"
 }

@@ -10,7 +10,7 @@ ASSUME_YES=0
 
 usage() {
     cat <<USAGE
-Uso: alpine-wizard [opções]
+Uso: rokko-setup [opções]
 
 Instalador guiado e modular para configurações pós-instalação do Alpine Linux.
 
@@ -41,7 +41,7 @@ if [ "$ASSUME_YES" -eq 1 ]; then
     CHOICE_NETWORKMANAGER=1
 else
     clear_screen
-    printf '%s\n' "Alpine Wizard — configuração guiada"
+    printf '%s\n' "RokkoDesk — configuração guiada para Alpine Linux"
     printf '%s\n\n' "Escolha os componentes que deseja instalar. Responda s/n."
     ask_yes_no "Instalar o NetworkManager?" "n" && CHOICE_NETWORKMANAGER=1
     ask_yes_no "Instalar Flatpak?" "n" && CHOICE_FLATPAK=1

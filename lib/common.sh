@@ -5,12 +5,12 @@ if [ -z "${PROJECT_ROOT:-}" ]; then
     if [ -d "$SCRIPT_DIR/../modules" ]; then
         PROJECT_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
     else
-        PROJECT_ROOT=/usr/share/alpine-wizard
+        PROJECT_ROOT=/usr/share/rokko-setup
     fi
 fi
 
-log() { printf '[alpine-wizard] %s\n' "$*"; }
-die() { printf '[alpine-wizard] erro: %s\n' "$*" >&2; exit 1; }
+log() { printf '[rokko-setup] %s\n' "$*"; }
+die() { printf '[rokko-setup] erro: %s\n' "$*" >&2; exit 1; }
 
 clear_screen() {
     if command -v clear >/dev/null 2>&1 && [ -t 1 ]; then clear; fi
