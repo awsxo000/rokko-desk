@@ -24,4 +24,6 @@ printf '%s\n' "$output" | while IFS= read -r line; do
             ;;
     esac
 done
+printf '%s\n' "$output" | grep -F '•' >/dev/null && exit 1 || true
+printf '%s\n' "$output" | grep -F '●' >/dev/null && exit 1 || true
 printf '%s\n' 'test-panel: ok'

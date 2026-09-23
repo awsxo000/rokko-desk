@@ -123,9 +123,9 @@ select_menu() {
         menu_index=1
         for menu_item in "$@"; do
             if [ "$menu_index" -eq "$menu_current" ]; then
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}● " "$(pad_to_width "$menu_item" 70)" "${ui_reset}  ${ui_border}│${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}" "$(pad_to_width "$menu_item" 72)" "${ui_reset}  ${ui_border}│${ui_reset}"
             else
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}•${ui_reset} " "$(pad_to_width "$menu_item" 70)" "  ${ui_border}│${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  " "$(pad_to_width "$menu_item" 72)" "  ${ui_border}│${ui_reset}"
             fi
             printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(pad_to_width '' 70)" "  ${ui_border}│${ui_reset}"
             menu_index=$((menu_index + 1))
