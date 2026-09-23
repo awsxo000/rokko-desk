@@ -106,20 +106,20 @@ select_menu() {
     while :; do
         clear_screen
         render_banner
-        printf '%b\n' "${ui_border}╭──────────────────────────────────────────────────────────────╮${ui_reset}"
-        printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(printf '%-56s' "$menu_prompt")" "${ui_reset}  ${ui_border}│${ui_reset}"
-        printf '%b\n' "${ui_border}├──────────────────────────────────────────────────────────────┤${ui_reset}"
+        printf '%b\n' "${ui_border}╭────────────────────────────────────────────────────────────────────────────╮${ui_reset}"
+        printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(printf '%-70s' "$menu_prompt")" "${ui_reset}  ${ui_border}│${ui_reset}"
+        printf '%b\n' "${ui_border}├────────────────────────────────────────────────────────────────────────────┤${ui_reset}"
         menu_index=1
         for menu_item in "$@"; do
             if [ "$menu_index" -eq "$menu_current" ]; then
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}● " "$(printf '%-54s' "$menu_item")" "${ui_reset}  ${ui_border}│${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}● " "$(printf '%-70s' "$menu_item")" "${ui_reset}  ${ui_border}│${ui_reset}"
             else
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}•${ui_reset} " "$(printf '%-54s' "$menu_item")" "  ${ui_border}│${ui_reset}"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}•${ui_reset} " "$(printf '%-70s' "$menu_item")" "  ${ui_border}│${ui_reset}"
             fi
-            printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(printf '%-54s' '')" "  ${ui_border}│${ui_reset}"
+            printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(printf '%-70s' '')" "  ${ui_border}│${ui_reset}"
             menu_index=$((menu_index + 1))
         done
-        printf '%b\n' "${ui_border}╰──────────────────────────────────────────────────────────────╯${ui_reset}"
+        printf '%b\n' "${ui_border}╰────────────────────────────────────────────────────────────────────────────╯${ui_reset}"
         printf '%b\n' "${ui_muted}  ↑/↓ Navegar    Enter Selecionar    Ctrl+C Sair${ui_reset}"
 
         read_menu_key || return 1
