@@ -9,6 +9,6 @@ printf '%s\n' "$output" | grep -F '[ ] Flatpak' >/dev/null
 printf '%s\n' "$output" | grep -F '[ ] Ferramentas básicas' >/dev/null
 
 printf '%s\n' "$output" | grep -F 'Rede: NetworkManager' >/dev/null
-grep -F 'Use ↑/↓ para navegar e Enter para selecionar.' "$ROOT/lib/common.sh" >/dev/null
+grep -F '↑/↓ Navegar    Enter Selecionar' "$ROOT/lib/common.sh" >/dev/null
 
 printf '%s\n' 'test-plan: ok'

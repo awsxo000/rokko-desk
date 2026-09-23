@@ -89,20 +89,37 @@ select_menu() {
     menu_count=$#
     [ "$menu_count" -gt 0 ] || return 1
 
+    if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
+        ui_border='\033[2;37m'
+        ui_title='\033[1;36m'
+        ui_selected='\033[30;46m'
+        ui_muted='\033[2;37m'
+        ui_reset='\033[0m'
+    else
+        ui_border=''
+        ui_title=''
+        ui_selected=''
+        ui_muted=''
+        ui_reset=''
+    fi
+
     while :; do
         clear_screen
         render_banner
-        printf '%s\n\n' "$menu_prompt"
+        printf '%b\n' "${ui_border}╭──────────────────────────────────────────────────────────────╮${ui_reset}"
+        printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(printf '%-56s' "$menu_prompt")" "${ui_reset}  ${ui_border}│${ui_reset}"
+        printf '%b\n' "${ui_border}├──────────────────────────────────────────────────────────────┤${ui_reset}"
         menu_index=1
         for menu_item in "$@"; do
             if [ "$menu_index" -eq "$menu_current" ]; then
-                printf '  %s %s\n' '▶' "$menu_item"
+                printf '%b%s%b\n' "${ui_selected}│  ▶ " "$(printf '%-56s' "$menu_item")" "  │${ui_reset}"
             else
-                printf '    %s\n' "$menu_item"
+                printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(printf '%-56s' "$menu_item")" "  ${ui_border}│${ui_reset}"
             fi
             menu_index=$((menu_index + 1))
         done
-        printf '\n%s\n' 'Use ↑/↓ para navegar e Enter para selecionar.'
+        printf '%b\n' "${ui_border}╰──────────────────────────────────────────────────────────────╯${ui_reset}"
+        printf '%b\n' "${ui_muted}  ↑/↓ Navegar    Enter Selecionar    Ctrl+C Sair${ui_reset}"
 
         read_menu_key || return 1
         case "$MENU_KEY" in
