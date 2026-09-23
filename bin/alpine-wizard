@@ -1,0 +1,71 @@
+#!/bin/sh
+set -eu
+
+ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+. "$ROOT_DIR/lib/common.sh"
+
+PROFILE="desktop"
+DRY_RUN=0
+ASSUME_YES=0
+
+usage() {
+    cat <<USAGE
+Uso: alpine-wizard [opções]
+
+Instalador guiado e modular para configurações pós-instalação do Alpine Linux.
+
+Opções:
+  --plan       mostra o plano sem alterar o sistema
+  --yes        aceita as escolhas padrão e executa sem perguntas
+  --help       mostra esta ajuda
+USAGE
+}
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --plan) DRY_RUN=1 ;;
+        --yes) ASSUME_YES=1 ;;
+        --help|-h) usage; exit 0 ;;
+        *) die "Opção desconhecida: $1" ;;
+    esac
+    shift
+done
+
+require_alpine
+
+CHOICE_NETWORKMANAGER=0
+CHOICE_FLATPAK=0
+CHOICE_TOOLS=0
+
+if [ "$ASSUME_YES" -eq 1 ]; then
+    CHOICE_NETWORKMANAGER=1
+else
+    clear_screen
+    printf '%s\n' "Alpine Wizard — configuração guiada"
+    printf '%s\n\n' "Escolha os componentes que deseja instalar. Responda s/n."
+    ask_yes_no "Instalar o NetworkManager?" "n" && CHOICE_NETWORKMANAGER=1
+    ask_yes_no "Instalar Flatpak?" "n" && CHOICE_FLATPAK=1
+    ask_yes_no "Instalar ferramentas básicas para desktop/jogos?" "n" && CHOICE_TOOLS=1
+fi
+
+printf '\n%s\n' "Plano selecionado:"
+[ "$CHOICE_NETWORKMANAGER" -eq 1 ] && printf '  [x] NetworkManager\n' || printf '  [ ] NetworkManager\n'
+[ "$CHOICE_FLATPAK" -eq 1 ] && printf '  [x] Flatpak\n' || printf '  [ ] Flatpak\n'
+[ "$CHOICE_TOOLS" -eq 1 ] && printf '  [x] Ferramentas básicas\n' || printf '  [ ] Ferramentas básicas\n'
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    printf '\nModo planejamento: nenhuma alteração será feita.\n'
+    exit 0
+fi
+
+if [ "$ASSUME_YES" -eq 0 ]; then
+    ask_yes_no "Aplicar este plano agora?" "n" || { printf '%s\n' "Cancelado."; exit 0; }
+fi
+
+require_root
+
+[ "$CHOICE_NETWORKMANAGER" -eq 1 ] && run_module networkmanager
+[ "$CHOICE_FLATPAK" -eq 1 ] && run_module flatpak
+[ "$CHOICE_TOOLS" -eq 1 ] && run_module desktop-tools
+
+printf '\nConfiguração concluída.\n'

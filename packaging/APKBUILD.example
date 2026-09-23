@@ -1,0 +1,20 @@
+# Exemplo inicial; revisar conforme as regras do Alpine antes de publicar.
+pkgname=alpine-wizard
+pkgver=0.1.0
+pkgrel=0
+pkgdesc="Assistente guiado para configuração pós-instalação do Alpine Linux"
+url="https://example.invalid/alpine-wizard"
+arch="noarch"
+license="MIT"
+depends="apk-tools"
+source=""
+
+build() { :; }
+
+package() {
+    install -Dm755 "$srcdir/../../bin/alpine-wizard" "$pkgdir/usr/bin/alpine-wizard"
+    install -Dm644 "$srcdir/../../README.md" "$pkgdir/usr/share/doc/alpine-wizard/README.md"
+    install -d "$pkgdir/usr/share/alpine-wizard/lib" "$pkgdir/usr/share/alpine-wizard/modules"
+    install -m644 "$srcdir/../../lib/common.sh" "$pkgdir/usr/share/alpine-wizard/lib/common.sh"
+    install -m644 "$srcdir/../../modules/"*.sh "$pkgdir/usr/share/alpine-wizard/modules/"
+}
