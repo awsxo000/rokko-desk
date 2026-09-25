@@ -185,6 +185,7 @@ read_tui_key() {
         case "$key2$key3" in
             '[A') key=up ;;
             '[B') key=down ;;
+            '') key=escape ;;
             *) key=other ;;
         esac
     fi
@@ -194,7 +195,7 @@ read_tui_key() {
         h|H) MENU_KEY=help ;;
         k) MENU_KEY=up ;;
         j) MENU_KEY=down ;;
-        up|down|other) MENU_KEY=$key ;;
+        up|down|escape|other) MENU_KEY=$key ;;
         *) MENU_KEY=other ;;
     esac
 }
@@ -233,25 +234,14 @@ show_help_screen() {
     printf '│ %s │\n' "$(pad_to_width '↑/↓ ou J/K   Navegar pelas opções' "$help_width")"
     printf '│ %s │\n' "$(pad_to_width 'Enter         Abrir o tópico selecionado' "$help_width")"
     printf '│ %s │\n' "$(pad_to_width 'H             Mostrar esta ajuda' "$help_width")"
+    printf '│ %s │\n' "$(pad_to_width 'Esc           Voltar ao menu anterior' "$help_width")"
     printf '│ %s │\n' "$(pad_to_width 'Ctrl+C        Sair' "$help_width")"
     printf '╰%s╯\n\n' "$(repeat_char '─' "$help_width")"
     printf 'Pressione qualquer tecla para voltar...'
     read_tui_key || true
 }
 
-select_tui_menu() {
-    menu_prompt=$1
-    shift
-    menu_count=$#
-    menu_current=1
-    [ "$menu_count" -gt 0 ] || return 1
-    panel_width=$(terminal_columns)
-    [ "$panel_width" -gt 84 ] && panel_width=84
-    [ "$panel_width" -lt 56 ] && panel_width=56
-    inner_width=$((panel_width - 4))
-    while :; do
-        clear_screen
-        render_banner
+draw_tui_panel() {
         printf '╭%s╮\n' "$(repeat_char '─' "$((panel_width - 2))")"
         printf '│  %s│\n' "$(pad_to_width "$menu_prompt" "$inner_width")"
         printf '├%s┤\n' "$(repeat_char '─' "$((panel_width - 2))")"
@@ -268,11 +258,44 @@ select_tui_menu() {
         render_status_line
         printf '\n'
         render_shortcuts "[↑/↓] Navegar  •  [Enter] Configurar  •  [H] Ajuda  •  [Ctrl+C] Sair"
+}
+
+select_tui_menu() {
+    menu_prompt=$1
+    shift
+    menu_count=$#
+    menu_current=1
+    [ "$menu_count" -gt 0 ] || return 1
+    panel_width=$(terminal_columns)
+    [ "$panel_width" -gt 84 ] && panel_width=84
+    [ "$panel_width" -lt 56 ] && panel_width=56
+    inner_width=$((panel_width - 4))
+
+    clear_screen
+    render_banner
+    printf '\033[s'
+    draw_tui_panel "$@"
+    while :; do
         read_tui_key || return 1
         case "$MENU_KEY" in
-            up) menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count ;;
-            down) menu_current=$((menu_current + 1)); [ "$menu_current" -le "$menu_count" ] || menu_current=1 ;;
-            help) show_help_screen ;;
+            up)
+                menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count
+                printf '\033[u'
+                draw_tui_panel "$@"
+                ;;
+            down)
+                menu_current=$((menu_current + 1)); [ "$menu_current" -le "$menu_count" ] || menu_current=1
+                printf '\033[u'
+                draw_tui_panel "$@"
+                ;;
+            help)
+                show_help_screen
+                clear_screen
+                render_banner
+                printf '\033[s'
+                draw_tui_panel "$@"
+                ;;
+            escape) return 1 ;;
             enter) MENU_SELECTION=$menu_current; return 0 ;;
         esac
     done
