@@ -325,6 +325,24 @@ draw_tui_panel() {
         render_shortcuts "[↑/↓] Navegar  •  [Enter] Configurar  •  [H] Ajuda  •  [Ctrl+C] Sair"
 }
 
+# Atualiza somente as linhas que mudaram. O cursor salvo fica no início do
+# painel; assim a navegação não apaga/recria o banner, o status ou o rodapé.
+refresh_tui_selection() {
+    refresh_previous=$1
+    refresh_current=$2
+
+    printf '\033[u\033[%sB\r' "$((refresh_previous + 2))"
+    if [ "$refresh_previous" -eq "$menu_current" ]; then
+        render_gradient_line "$(printf '%s' "$menu_items" | sed -n "${refresh_previous}p")" "$inner_width"
+    else
+        render_menu_line "$(printf '%s' "$menu_items" | sed -n "${refresh_previous}p")" "$inner_width"
+    fi
+
+    printf '\033[u\033[%sB\r' "$((refresh_current + 2))"
+    render_gradient_line "$(printf '%s' "$menu_items" | sed -n "${refresh_current}p")" "$inner_width"
+    printf '\033[u'
+}
+
 select_tui_menu() {
     menu_prompt=$1
     shift
@@ -336,6 +354,9 @@ select_tui_menu() {
     [ "$panel_width" -lt 72 ] && panel_width=72
     inner_width=$((panel_width - 4))
     ROKKO_TUI=1
+    menu_items=''
+    for menu_item in "$@"; do menu_items="${menu_items}${menu_item}
+"; done
 
     clear_screen
     render_banner
@@ -346,14 +367,14 @@ select_tui_menu() {
         read_tui_key || { unset ROKKO_TUI; return 1; }
         case "$MENU_KEY" in
             up)
+                menu_previous=$menu_current
                 menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count
-                printf '\033[u\033[0J'
-                draw_tui_panel "$@"
+                refresh_tui_selection "$menu_previous" "$menu_current"
                 ;;
             down)
+                menu_previous=$menu_current
                 menu_current=$((menu_current + 1)); [ "$menu_current" -le "$menu_count" ] || menu_current=1
-                printf '\033[u\033[0J'
-                draw_tui_panel "$@"
+                refresh_tui_selection "$menu_previous" "$menu_current"
                 ;;
             help)
                 show_help_screen
