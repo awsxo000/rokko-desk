@@ -82,10 +82,29 @@ check_gum_deps() {
 # tecla; FIGlet permanece como fallback para instalações antigas.
 # Sem TTY (ex.: saída redirecionada) cai para um cabeçalho simples.
 # ------------------------------------------------------------------------
+render_logo_frame() {
+    logo_frame_max=$(printf '%s\n' "$logo_text" | awk '{ if (length > max) max=length } END { print max }')
+    logo_frame_inner=$((logo_frame_max + 4))
+    logo_frame_width=$((logo_frame_inner + 2))
+    logo_frame_pad=$(( (cols - logo_frame_width) / 2 )); [ "$logo_frame_pad" -lt 0 ] && logo_frame_pad=0
+    logo_frame_indent=$(printf '%*s' "$logo_frame_pad" '')
+    printf '%s%b╭%s╮%b\n' "$logo_frame_indent" "$frame_color" "$(repeat_char '─' "$logo_frame_inner")" "$reset_color"
+    printf '%s\n' "$logo_text" | while IFS= read -r logo_line; do
+        logo_len=$(printf '%s' "$logo_line" | wc -m | tr -d ' ')
+        logo_left=$(( (logo_frame_max - logo_len) / 2 + 2 )); [ "$logo_left" -lt 2 ] && logo_left=2
+        logo_content=$(printf '%*s%s' "$logo_left" '' "$logo_line")
+        logo_content=$(pad_to_width "$logo_content" "$logo_frame_inner")
+        printf '%s%b│%b%b%s%b%b│%b\n' "$logo_frame_indent" "$frame_color" "$reset_color" "$logo_color" "$logo_content" "$reset_color" "$frame_color" "$reset_color"
+    done
+    printf '%s%b╰%s╯%b\n' "$logo_frame_indent" "$frame_color" "$(repeat_char '─' "$logo_frame_inner")" "$reset_color"
+}
+
 render_banner() {
     if [ "${ROKKO_TUI:-0}" -eq 1 ]; then
         banner_color='\033[1;96m'
         subtitle_color='\033[1;97m'
+        frame_color='\033[1;96m'
+        logo_color='\033[1;92m'
         reset_color='\033[0m'
         cols=$(terminal_columns)
         logo_file="$PROJECT_ROOT/assets/alpine-fastfetch.txt"
@@ -96,12 +115,9 @@ render_banner() {
             [ -f "$figlet_font" ] || figlet_font=big
             banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null || printf '%s\n' 'ALPINE')
         fi
+        logo_text=$banner_text
+        render_logo_frame
         printf '\n'
-        printf '%s\n' "$banner_text" | while IFS= read -r line; do
-            len=$(printf '%s' "$line" | wc -m | tr -d ' ')
-            pad=$(( (cols - len) / 2 )); [ "$pad" -lt 0 ] && pad=0
-            printf '%*s%b%s%b\n' "$pad" '' "$banner_color" "$line" "$reset_color"
-        done
         sub='Alp-Desk'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
         printf '%*s%b%s%b\n\n' "$subpad" '' "$subtitle_color" "$sub" "$reset_color"
         printf '%b%s%b\n' "$banner_color" "$(repeat_char '─' "$cols")" "$reset_color"
@@ -120,14 +136,11 @@ render_banner() {
             banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null) || banner_text='ALPINE'
         fi
 
-        printf '\n'
-        printf '%s\n' "$banner_text" | while IFS= read -r line; do
-            len=$(printf '%s' "$line" | wc -m | tr -d ' ')
-            pad=$(( (cols - len) / 2 ))
-            [ "$pad" -lt 0 ] && pad=0
-            printf '%*s' "$pad" ''
-            gum style --foreground="#37E6FF" --bold -- "$line"
-        done
+        frame_color='\033[1;96m'
+        logo_color='\033[1;92m'
+        reset_color='\033[0m'
+        logo_text=$banner_text
+        render_logo_frame
 
         sub='Alp-Desk'
         sublen=${#sub}
