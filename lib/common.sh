@@ -254,12 +254,7 @@ repeat_char() {
 }
 
 render_gradient_line() {
-    gradient_text=$1
-    gradient_width=$2
-    gradient_pad=$(pad_to_width "$gradient_text" "$gradient_width")
-    printf '│  '
-    printf '\033[48;2;25;154;174m\033[38;2;255;255;255m%s\033[0m' "$gradient_pad"
-    printf '│\n'
+    render_selected_menu_line "$1" "$2"
 }
 
 render_menu_line() {
@@ -272,9 +267,26 @@ render_menu_line() {
         return 0
     fi
     menu_line_label=${menu_line_label#  }
-    # O ícone ocupa uma coluna e os dois espaços ao redor ocupam duas;
-    # portanto o rótulo precisa preencher exatamente width - 3 colunas.
-    printf '│  \033[1;96m%s\033[0m  %s│\n' "$menu_line_icon" "$(pad_to_width "$menu_line_label" "$((menu_line_width - 3))")"
+    if [ "${ROKKO_ICON_SIZE:-large}" = 'compact' ]; then
+        printf '│  \033[1;96m%s\033[0m  %s│\n' "$menu_line_icon" "$(pad_to_width "$menu_line_label" "$((menu_line_width - 3))")"
+    else
+        menu_icon_badge="[ $menu_line_icon ]"
+        printf '│  \033[1;96m%s\033[0m  %s│\n' "$menu_icon_badge" "$(pad_to_width "$menu_line_label" "$((menu_line_width - 7))")"
+    fi
+}
+
+render_selected_menu_line() {
+    selected_text=$1
+    selected_width=$2
+    selected_icon=${selected_text%%  *}
+    selected_label=${selected_text#"$selected_icon"}
+    if [ "$selected_icon" = "$selected_text" ] || [ "${ROKKO_ICON_MODE:-nerd}" = 'none' ] || [ "${ROKKO_ICON_SIZE:-large}" = 'compact' ]; then
+        printf '│  \033[48;2;25;154;174m\033[38;2;255;255;255m%s\033[0m│\n' "$(pad_to_width "$selected_text" "$selected_width")"
+        return 0
+    fi
+    selected_label=${selected_label#  }
+    selected_icon_badge="[ $selected_icon ]"
+    printf '│  \033[48;2;25;154;174m\033[38;2;255;255;255m%s  %s\033[0m│\n' "$selected_icon_badge" "$(pad_to_width "$selected_label" "$((selected_width - 7))")"
 }
 
 show_help_screen() {
