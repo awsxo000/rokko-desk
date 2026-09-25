@@ -25,17 +25,6 @@ terminal_columns() {
 }
 
 # ------------------------------------------------------------------------
-# Ícones compatíveis. Usamos símbolos Unicode comuns por padrão para que
-# apareçam mesmo quando o terminal não utiliza Nerd Font.
-# ------------------------------------------------------------------------
-ICON_REDE="◉"
-ICON_FLATPAK="◆"
-ICON_FERRAMENTAS="⚙"
-ICON_PLANO="▤"
-ICON_AJUDA="?"
-ICON_SAIR="×"
-
-# ------------------------------------------------------------------------
 # Dependências de interface (gum + figlet). Só é exigido quando o fluxo
 # realmente precisa desenhar um menu interativo; o modo `--plan --yes`
 # continua funcionando sem essas ferramentas instaladas.

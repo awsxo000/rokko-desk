@@ -56,14 +56,6 @@ selection=$(
     exit 1
 }
 
-for icon in ICON_REDE ICON_FLATPAK ICON_FERRAMENTAS ICON_PLANO ICON_AJUDA ICON_SAIR; do
-    value=$(sh -c ". '$ROOT/lib/common.sh'; printf '%s' \"\$$icon\"")
-    [ -n "$value" ] || {
-        printf 'ícone vazio: %s\n' "$icon" >&2
-        exit 1
-    }
-done
-
 # check_gum_deps precisa falhar (exit 1) quando gum/figlet não existem.
 EMPTY_BIN=$(mktemp -d)
 trap 'rm -rf "$FAKE_BIN" "$EMPTY_BIN"' EXIT
