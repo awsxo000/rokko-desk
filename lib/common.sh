@@ -150,13 +150,12 @@ select_menu() {
 
     choice=$(gum choose \
         --header="$menu_prompt" \
-        --header.bold \
         --header.foreground="#F5F5F5" \
         --cursor="▶ " \
         --cursor.foreground="#37E6FF" \
         --selected.background="#0E7C93" \
         --selected.foreground="#FFFFFF" \
-        --selected.bold \
+        --no-show-help \
         --height="$(( $# + 1 ))" \
         "$@")
     rc=$?
@@ -192,13 +191,12 @@ select_main_menu() {
 
     choice=$(gum choose \
         --header="$menu_prompt" \
-        --header.bold \
         --header.foreground="#F5F5F5" \
         --cursor="▶ " \
         --cursor.foreground="#37E6FF" \
         --selected.background="#0E7C93" \
         --selected.foreground="#FFFFFF" \
-        --selected.bold \
+        --no-show-help \
         --height="$(( $# + 1 ))" \
         "$@")
     rc=$?
