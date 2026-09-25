@@ -92,12 +92,12 @@ render_logo_frame() {
     printf '%s\n' "$logo_text" | while IFS= read -r logo_line; do
         logo_len=$(printf '%s' "$logo_line" | wc -m | tr -d ' ')
         logo_left=$(( (logo_frame_max - logo_len) / 2 + 2 )); [ "$logo_left" -lt 2 ] && logo_left=2
-        logo_content=$(printf '%*s%s' "$logo_left" '' "$logo_line")
-        logo_content=$(pad_to_width "$logo_content" "$logo_frame_inner")
-        # Completa os espaços internos com o mesmo caractere-base da arte,
-        # transformando o logotipo orgânico em um bloco quadrado sem trocar
+        logo_right=$((logo_frame_inner - logo_left - logo_len))
+        [ "$logo_right" -lt 0 ] && logo_right=0
+        # Preenche somente as margens externas. Os espaços que pertencem à
+        # própria linha do Fastfetch permanecem intactos, evitando distorcer
         # os detalhes originais (/, +, h, :, ` e demais marcas).
-        logo_content=$(printf '%s' "$logo_content" | tr ' ' 'd')
+        logo_content="$(repeat_char 'd' "$logo_left")${logo_line}$(repeat_char 'd' "$logo_right")"
         printf '%s%b│%b%b%s%b%b│%b\n' "$logo_frame_indent" "$frame_color" "$reset_color" "$logo_color" "$logo_content" "$reset_color" "$frame_color" "$reset_color"
     done
     printf '%s%b╰%s╯%b\n' "$logo_frame_indent" "$frame_color" "$(repeat_char '─' "$logo_frame_inner")" "$reset_color"
