@@ -50,6 +50,21 @@ Para obter os ícones da referência, instale uma Nerd Font e selecione-a nas pr
 sudo apk add font-jetbrains-mono-nerd
 ```
 
+### Nothing Font / Ndot
+
+O wordmark pontilhado do projeto foi inspirado na família Ndot. O repositório [`xeji01/nothingfont`](https://github.com/xeji01/nothingfont) fornece `Ndot55-Regular.otf`, `Ndot57-Regular.otf` e variantes caps. Esses arquivos não são redistribuídos pelo RokkoDesk: o próprio repositório informa que os direitos pertencem à NOTHING Tech.
+
+Se você tiver autorização para usar a fonte, instale-a somente no seu usuário:
+
+```sh
+git clone --depth 1 https://github.com/xeji01/nothingfont /tmp/nothingfont
+mkdir -p "$HOME/.local/share/fonts/nothing"
+cp /tmp/nothingfont/fonts/Ndot57-Regular.otf "$HOME/.local/share/fonts/nothing/"
+fc-cache -f "$HOME/.local/share/fonts"
+```
+
+Depois, selecione **Ndot 57** como fonte do perfil do terminal. A fonte altera o terminal inteiro; ela não pode ser aplicada apenas ao wordmark por ANSI. Se você não quiser alterar a fonte do terminal, o RokkoDesk continua usando o wordmark pontilhado próprio e a Nerd Font apenas para ícones.
+
 Exemplos de fallback:
 
 ```sh
