@@ -36,9 +36,7 @@ A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
 
-Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para cores e estilo, um wordmark pontilhado próprio e um TUI para o painel arredondado, a faixa selecionada e o rodapé fixo. O topo usa pontos brancos, linhas de grade vermelha discreta e o wordmark **ROKKO DESK**; a moldura do painel acompanha a mesma linguagem técnica. O painel usa uma largura maior, uma coluna exclusiva para os ícones e espaçamento reforçado entre ícone e rótulo. Abaixo do painel, o status usa blocos no estilo **Powerline** para Alpine, CPU, RAM e NET, com separadores em seta e cores independentes. A opção `H` abre a tela de ajuda. A seleção usa uma faixa cyan/azul e os ícones usam Nerd Font por padrão. O tamanho físico do ícone é controlado pelo tamanho da fonte do emulador de terminal; para vê-los maiores, aumente o tamanho da JetBrainsMono Nerd Font nas preferências do Konsole. Se a fonte não estiver configurada no terminal, use `ROKKO_ICON_MODE=fallback` para símbolos comuns ou `ROKKO_ICON_MODE=none` para ocultá-los.
-
-A camada visual usa **unicase** por padrão: os textos são exibidos em caixa alta para eliminar a diferença visual entre maiúsculas e minúsculas, aproximando-se de uma fonte técnica mais pesada. O modo pode ser desativado com `ROKKO_UI_CASE=normal`. Para uma aparência mais marcante, selecione **JetBrainsMono Nerd Font Bold** ou **JetBrainsMono Nerd Font** em tamanho maior no terminal.
+Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para cores e estilo, `figlet` para o wordmark **ALPINE** e um TUI próprio para o painel arredondado, a faixa selecionada e o rodapé fixo. O painel usa uma largura maior, uma coluna exclusiva para os ícones e espaçamento reforçado entre ícone e rótulo. Abaixo do painel, o status usa blocos no estilo **Powerline** para Alpine, CPU, RAM e NET, com separadores em seta e cores independentes. A opção `H` abre a tela de ajuda. A seleção usa uma faixa cyan/azul e os ícones usam Nerd Font por padrão. O tamanho físico do ícone é controlado pelo tamanho da fonte do emulador de terminal; para vê-los maiores, aumente o tamanho da JetBrainsMono Nerd Font nas preferências do Konsole. Se a fonte não estiver configurada no terminal, use `ROKKO_ICON_MODE=fallback` para símbolos comuns ou `ROKKO_ICON_MODE=none` para ocultá-los.
 
 Para executar a interface interativa a partir do checkout, instale as dependências no Alpine:
 
@@ -51,21 +49,6 @@ Para obter os ícones da referência, instale uma Nerd Font e selecione-a nas pr
 ```sh
 sudo apk add font-jetbrains-mono-nerd
 ```
-
-### Nothing Font / Ndot
-
-O wordmark pontilhado do projeto foi inspirado na família Ndot. O repositório [`xeji01/nothingfont`](https://github.com/xeji01/nothingfont) fornece `Ndot55-Regular.otf`, `Ndot57-Regular.otf` e variantes caps. Esses arquivos não são redistribuídos pelo RokkoDesk: o próprio repositório informa que os direitos pertencem à NOTHING Tech.
-
-Se você tiver autorização para usar a fonte, instale-a somente no seu usuário:
-
-```sh
-git clone --depth 1 https://github.com/xeji01/nothingfont /tmp/nothingfont
-mkdir -p "$HOME/.local/share/fonts/nothing"
-cp /tmp/nothingfont/fonts/Ndot57-Regular.otf "$HOME/.local/share/fonts/nothing/"
-fc-cache -f "$HOME/.local/share/fonts"
-```
-
-Depois, selecione **Ndot 57** como fonte do perfil do terminal. A fonte altera o terminal inteiro; ela não pode ser aplicada apenas ao wordmark por ANSI. Se você não quiser alterar a fonte do terminal, o RokkoDesk continua usando o wordmark pontilhado próprio e a Nerd Font apenas para ícones.
 
 Exemplos de fallback:
 
