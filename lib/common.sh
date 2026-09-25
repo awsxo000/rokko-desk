@@ -199,9 +199,9 @@ read_tui_key() {
     stty -icanon -echo min 1 time 0 2>/dev/null || return 1
     key=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
     if [ "$(printf '%s' "$key" | od -An -t x1 | tr -d ' \n')" = '1b' ]; then
-        key2=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
-        key3=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
-        case "$key2$key3" in
+        stty -icanon -echo min 0 time 1 2>/dev/null || true
+        sequence=$(dd if=/dev/tty bs=1 count=2 2>/dev/null || true)
+        case "$sequence" in
             '[A') key=up ;;
             '[B') key=down ;;
             '') key=escape ;;
@@ -234,12 +234,8 @@ render_gradient_line() {
     gradient_text=$1
     gradient_width=$2
     gradient_pad=$(pad_to_width "$gradient_text" "$gradient_width")
-    gradient_half=$((gradient_width / 2))
-    gradient_left=$(printf '%s' "$gradient_pad" | cut -c 1-"$gradient_half")
-    gradient_right=$(printf '%s' "$gradient_pad" | cut -c $((gradient_half + 1))-)
     printf '│  '
-    printf '\033[48;2;53;220;207m\033[38;2;5;25;30m%s\033[0m' "$gradient_left"
-    printf '\033[48;2;52;118;180m\033[38;2;255;255;255m%s\033[0m' "$gradient_right"
+    printf '\033[48;2;25;154;174m\033[38;2;255;255;255m%s\033[0m' "$gradient_pad"
     printf '│\n'
 }
 
@@ -294,29 +290,30 @@ select_tui_menu() {
     clear_screen
     render_banner
     printf '\033[s'
+    printf '\033[?25l'
     draw_tui_panel "$@"
     while :; do
         read_tui_key || { unset ROKKO_TUI; return 1; }
         case "$MENU_KEY" in
             up)
                 menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count
-                printf '\033[u'
+                printf '\033[u\033[0J'
                 draw_tui_panel "$@"
                 ;;
             down)
                 menu_current=$((menu_current + 1)); [ "$menu_current" -le "$menu_count" ] || menu_current=1
-                printf '\033[u'
+                printf '\033[u\033[0J'
                 draw_tui_panel "$@"
                 ;;
             help)
                 show_help_screen
                 clear_screen
                 render_banner
-                printf '\033[s'
+                printf '\033[s\033[?25l'
                 draw_tui_panel "$@"
                 ;;
-            escape) unset ROKKO_TUI; return 1 ;;
-            enter) MENU_SELECTION=$menu_current; unset ROKKO_TUI; return 0 ;;
+            escape) printf '\033[?25h'; unset ROKKO_TUI; return 1 ;;
+            enter) printf '\033[?25h'; MENU_SELECTION=$menu_current; unset ROKKO_TUI; return 0 ;;
         esac
     done
 }
