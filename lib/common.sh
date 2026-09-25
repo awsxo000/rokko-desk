@@ -82,6 +82,25 @@ check_gum_deps() {
 # Sem TTY (ex.: saída redirecionada) cai para um cabeçalho simples.
 # ------------------------------------------------------------------------
 render_banner() {
+    if [ "${ROKKO_TUI:-0}" -eq 1 ]; then
+        banner_color='\033[1;96m'
+        subtitle_color='\033[1;97m'
+        reset_color='\033[0m'
+        cols=$(terminal_columns)
+        figlet_font="$PROJECT_ROOT/assets/rokko.flf"
+        [ -f "$figlet_font" ] || figlet_font=big
+        banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null || printf '%s\n' 'ALPINE')
+        printf '\n'
+        printf '%s\n' "$banner_text" | while IFS= read -r line; do
+            len=$(printf '%s' "$line" | wc -m | tr -d ' ')
+            pad=$(( (cols - len) / 2 )); [ "$pad" -lt 0 ] && pad=0
+            printf '%*s%b%s%b\n' "$pad" '' "$banner_color" "$line" "$reset_color"
+        done
+        sub='Rokko'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
+        printf '%*s%b%s%b\n\n' "$subpad" '' "$subtitle_color" "$sub" "$reset_color"
+        printf '%b%s%b\n' "$banner_color" "$(repeat_char '─' "$cols")" "$reset_color"
+        return 0
+    fi
     if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ] \
         && command -v figlet >/dev/null 2>&1 && command -v gum >/dev/null 2>&1; then
 
@@ -158,7 +177,7 @@ render_status_line() {
     status_mem=${status_rest%%|*}
     status_net=${status_rest#*|}
 
-    if command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
+    if [ "${ROKKO_TUI:-0}" -eq 1 ]; then printf "\033[37m%s\033[0m\n" "Alpine ${status_version} │ CPU: ${status_cpu}% │ RAM: ${status_mem} │ Net: ${status_net}"; elif command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
         gum style --foreground="#8A8A8A" -- \
             "Alpine ${status_version} │ CPU: ${status_cpu}% │ RAM: ${status_mem} │ Net: ${status_net}"
     else
@@ -168,7 +187,7 @@ render_status_line() {
 
 render_shortcuts() {
     text=$1
-    if command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
+    if [ "${ROKKO_TUI:-0}" -eq 1 ]; then printf "\033[37m%s\033[0m\n" "$text"; elif command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
         gum style --foreground="#8A8A8A" -- "$text"
     else
         printf '%s\n' "$text"
@@ -270,13 +289,14 @@ select_tui_menu() {
     [ "$panel_width" -gt 84 ] && panel_width=84
     [ "$panel_width" -lt 56 ] && panel_width=56
     inner_width=$((panel_width - 4))
+    ROKKO_TUI=1
 
     clear_screen
     render_banner
     printf '\033[s'
     draw_tui_panel "$@"
     while :; do
-        read_tui_key || return 1
+        read_tui_key || { unset ROKKO_TUI; return 1; }
         case "$MENU_KEY" in
             up)
                 menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count
@@ -295,8 +315,8 @@ select_tui_menu() {
                 printf '\033[s'
                 draw_tui_panel "$@"
                 ;;
-            escape) return 1 ;;
-            enter) MENU_SELECTION=$menu_current; return 0 ;;
+            escape) unset ROKKO_TUI; return 1 ;;
+            enter) MENU_SELECTION=$menu_current; unset ROKKO_TUI; return 0 ;;
         esac
     done
 }
