@@ -24,6 +24,38 @@ terminal_columns() {
     printf '%s' "$columns"
 }
 
+terminal_lines() {
+    lines=$(tput lines 2>/dev/null || true)
+    case "$lines" in
+        ''|*[!0-9]*) lines=24 ;;
+    esac
+    printf '%s' "$lines"
+}
+
+pad_to_width() {
+    pad_text=$1
+    pad_width=$2
+    pad_current=$(printf '%s' "$pad_text" | wc -m | tr -d ' ')
+    printf '%s' "$pad_text"
+    while [ "$pad_current" -lt "$pad_width" ]; do
+        printf ' '
+        pad_current=$((pad_current + 1))
+    done
+}
+
+icon_mode=${ROKKO_ICON_MODE:-nerd}
+case "$icon_mode" in
+    none)
+        ICON_REDE=''; ICON_FLATPAK=''; ICON_FERRAMENTAS=''; ICON_PLANO=''; ICON_SAIR=''
+        ;;
+    fallback)
+        ICON_REDE='◉'; ICON_FLATPAK='◆'; ICON_FERRAMENTAS='⚙'; ICON_PLANO='▤'; ICON_SAIR='×'
+        ;;
+    *)
+        ICON_REDE='󰖩'; ICON_FLATPAK='󰏖'; ICON_FERRAMENTAS='󰊗'; ICON_PLANO='󰈙'; ICON_SAIR='󰗼'
+        ;;
+esac
+
 # ------------------------------------------------------------------------
 # Dependências de interface (gum + figlet). Só é exigido quando o fluxo
 # realmente precisa desenhar um menu interativo; o modo `--plan --yes`
@@ -54,7 +86,9 @@ render_banner() {
         && command -v figlet >/dev/null 2>&1 && command -v gum >/dev/null 2>&1; then
 
         cols=$(terminal_columns)
-        banner_text=$(figlet -f big -- ALPINE 2>/dev/null) || banner_text='ALPINE'
+        figlet_font="$PROJECT_ROOT/assets/rokko.flf"
+        [ -f "$figlet_font" ] || figlet_font=big
+        banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null) || banner_text='ALPINE'
 
         printf '\n'
         printf '%s\n' "$banner_text" | while IFS= read -r line; do
@@ -141,6 +175,109 @@ render_shortcuts() {
     fi
 }
 
+read_tui_key() {
+    old_stty=$(stty -g 2>/dev/null) || return 1
+    stty -icanon -echo min 1 time 0 2>/dev/null || return 1
+    key=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
+    if [ "$(printf '%s' "$key" | od -An -t x1 | tr -d ' \n')" = '1b' ]; then
+        key2=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
+        key3=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
+        case "$key2$key3" in
+            '[A') key=up ;;
+            '[B') key=down ;;
+            *) key=other ;;
+        esac
+    fi
+    stty "$old_stty" 2>/dev/null || true
+    case "$key" in
+        '') MENU_KEY=enter ;;
+        h|H) MENU_KEY=help ;;
+        k) MENU_KEY=up ;;
+        j) MENU_KEY=down ;;
+        up|down|other) MENU_KEY=$key ;;
+        *) MENU_KEY=other ;;
+    esac
+}
+
+repeat_char() {
+    repeat_value=$1
+    repeat_count=$2
+    [ "$repeat_count" -gt 0 ] || return 0
+    i=0
+    while [ "$i" -lt "$repeat_count" ]; do
+        printf '%s' "$repeat_value"
+        i=$((i + 1))
+    done
+}
+
+render_gradient_line() {
+    gradient_text=$1
+    gradient_width=$2
+    gradient_pad=$(pad_to_width "$gradient_text" "$gradient_width")
+    gradient_half=$((gradient_width / 2))
+    gradient_left=$(printf '%s' "$gradient_pad" | cut -c 1-"$gradient_half")
+    gradient_right=$(printf '%s' "$gradient_pad" | cut -c $((gradient_half + 1))-)
+    printf '│  '
+    printf '\033[48;2;53;220;207m\033[38;2;5;25;30m%s\033[0m' "$gradient_left"
+    printf '\033[48;2;52;118;180m\033[38;2;255;255;255m%s\033[0m' "$gradient_right"
+    printf '│\n'
+}
+
+show_help_screen() {
+    clear_screen
+    render_banner
+    help_width=64
+    printf '╭%s╮\n' "$(repeat_char '─' "$help_width")"
+    printf '│ %s │\n' "$(pad_to_width 'Ajuda do RokkoDesk' "$help_width")"
+    printf '├%s┤\n' "$(repeat_char '─' "$help_width")"
+    printf '│ %s │\n' "$(pad_to_width '↑/↓ ou J/K   Navegar pelas opções' "$help_width")"
+    printf '│ %s │\n' "$(pad_to_width 'Enter         Abrir o tópico selecionado' "$help_width")"
+    printf '│ %s │\n' "$(pad_to_width 'H             Mostrar esta ajuda' "$help_width")"
+    printf '│ %s │\n' "$(pad_to_width 'Ctrl+C        Sair' "$help_width")"
+    printf '╰%s╯\n\n' "$(repeat_char '─' "$help_width")"
+    printf 'Pressione qualquer tecla para voltar...'
+    read_tui_key || true
+}
+
+select_tui_menu() {
+    menu_prompt=$1
+    shift
+    menu_count=$#
+    menu_current=1
+    [ "$menu_count" -gt 0 ] || return 1
+    panel_width=$(terminal_columns)
+    [ "$panel_width" -gt 84 ] && panel_width=84
+    [ "$panel_width" -lt 56 ] && panel_width=56
+    inner_width=$((panel_width - 4))
+    while :; do
+        clear_screen
+        render_banner
+        printf '╭%s╮\n' "$(repeat_char '─' "$((panel_width - 2))")"
+        printf '│  %s│\n' "$(pad_to_width "$menu_prompt" "$inner_width")"
+        printf '├%s┤\n' "$(repeat_char '─' "$((panel_width - 2))")"
+        menu_index=1
+        for menu_item in "$@"; do
+            if [ "$menu_index" -eq "$menu_current" ]; then
+                render_gradient_line "$menu_item" "$inner_width"
+            else
+                printf '│  %s│\n' "$(pad_to_width "$menu_item" "$inner_width")"
+            fi
+            menu_index=$((menu_index + 1))
+        done
+        printf '╰%s╯\n' "$(repeat_char '─' "$((panel_width - 2))")"
+        render_status_line
+        printf '\n'
+        render_shortcuts "[↑/↓] Navegar  •  [Enter] Configurar  •  [H] Ajuda  •  [Ctrl+C] Sair"
+        read_tui_key || return 1
+        case "$MENU_KEY" in
+            up) menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count ;;
+            down) menu_current=$((menu_current + 1)); [ "$menu_current" -le "$menu_count" ] || menu_current=1 ;;
+            help) show_help_screen ;;
+            enter) MENU_SELECTION=$menu_current; return 0 ;;
+        esac
+    done
+}
+
 # ------------------------------------------------------------------------
 # Menu genérico (submenus). Usa `gum choose`; a seleção final é
 # recuperada comparando o texto escolhido com a lista original, então
@@ -150,6 +287,11 @@ select_menu() {
     menu_prompt=$1
     shift
     [ "$#" -gt 0 ] || return 1
+
+    if [ -t 1 ] && [ -t 0 ]; then
+        select_tui_menu "$menu_prompt" "$@"
+        return $?
+    fi
 
     clear_screen
     render_banner
@@ -191,6 +333,11 @@ select_main_menu() {
     menu_prompt=$1
     shift
     [ "$#" -gt 0 ] || return 1
+
+    if [ -t 1 ] && [ -t 0 ]; then
+        select_tui_menu "$menu_prompt" "$@"
+        return $?
+    fi
 
     clear_screen
     render_banner
