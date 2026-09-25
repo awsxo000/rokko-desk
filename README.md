@@ -36,11 +36,17 @@ A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
 
-Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A opção ativa é indicada somente pela cor das letras; não há bolinhas ou outros marcadores visuais competindo com o texto. Há uma linha de respiro entre as opções para facilitar a leitura. A interface não depende de números para a navegação.
+Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para renderizar menus, seleção, cores e atalhos, e `figlet` para o wordmark **ALPINE**. A opção ativa recebe destaque visual em cyan/azul no estilo da referência do projeto. Em modo não interativo, o fluxo de planejamento continua disponível sem depender desses componentes visuais.
+
+Para executar a interface interativa a partir do checkout, instale as dependências no Alpine:
+
+```sh
+sudo apk add gum figlet
+```
 
 ## Organização por tópicos
 
-A interface principal organiza a configuração em tópicos independentes. O usuário entra em `Rede`, `Flatpak` ou `Ferramentas de desktop e jogos`, configura aquele assunto e retorna ao menu principal. Em seguida, pode revisar o plano completo antes de aplicar qualquer alteração. O tópico de rede possui um submenu próprio para escolher NetworkManager, o gerenciador nativo do Alpine, manutenção da configuração atual ou restauração do padrão nativo.
+A interface principal organiza a configuração em tópicos independentes. O usuário entra em `Rede`, `Flatpak` ou `Ferramentas de desktop e jogos`, configura aquele assunto e retorna ao menu principal. Em seguida, pode revisar o plano completo antes de aplicar qualquer alteração. O tópico de rede possui um submenu próprio para escolher NetworkManager, o gerenciador nativo do Alpine, manutenção da configuração atual ou restauração do padrão nativo. Em terminais largos, o menu principal apresenta a linha de status do sistema abaixo da seleção; em terminais menores, a interface continua compacta para evitar quebras.
 
 ## Arquitetura
 

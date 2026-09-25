@@ -69,13 +69,15 @@ configure_tools() {
 }
 
 interactive_menu() {
+    check_gum_deps
+
     while :; do
         select_main_menu "Tópicos de configuração:" \
-            "Rede" \
-            "Flatpak" \
-            "Ferramentas de desktop e jogos" \
-            "Revisar plano" \
-            "Sair" || exit 0
+            "${ICON_REDE}  Rede" \
+            "${ICON_FLATPAK}  Flatpak" \
+            "${ICON_FERRAMENTAS}  Ferramentas de desktop e jogos" \
+            "${ICON_PLANO}  Revisar plano" \
+            "${ICON_SAIR}  Sair" || exit 0
         case "$MENU_SELECTION" in
             1) ask_network_backend || true ;;
             2) configure_flatpak ;;

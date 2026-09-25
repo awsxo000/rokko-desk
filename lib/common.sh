@@ -16,85 +16,6 @@ clear_screen() {
     if command -v clear >/dev/null 2>&1 && [ -t 1 ]; then clear; fi
 }
 
-render_banner() {
-    if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
-        blue='\033[1;34m'
-        cyan='\033[1;36m'
-        white='\033[1;37m'
-        reset='\033[0m'
-    else
-        blue=''
-        cyan=''
-        white=''
-        reset=''
-    fi
-
-    printf '%b\n' "${cyan}────────────────────────────────────────────────────────────────────────────${reset}"
-    printf '%b\n' "${blue}     ███   █      ████  █████  █   █  █████${reset}"
-    printf '%b\n' "${blue}    █   █  █      █   █   █    ██  █  █     ${reset}"
-    printf '%b\n' "${cyan}    █████  █      ████    █    █ █ █  ████  ${reset}"
-    printf '%b\n' "${cyan}    █   █  █      █       █    █  ██  █     ${reset}"
-    printf '%b\n' "${blue}    █   █  █████  █       █    █   █  █████${reset}"
-    printf '%b\n' "${white}                              Rokko${reset}"
-    printf '%b\n' "${cyan}────────────────────────────────────────────────────────────────────────────${reset}"
-    printf '\n'
-}
-
-ask_yes_no() {
-    question=$1
-    default=${2:-n}
-    while :; do
-        if [ "$default" = "s" ]; then suffix='[S/n]'; else suffix='[s/N]'; fi
-        printf '%s %s ' "$question" "$suffix"
-        IFS= read -r answer || answer=''
-        answer=$(printf '%s' "$answer" | tr '[:upper:]' '[:lower:]')
-        [ -z "$answer" ] && answer=$default
-        case "$answer" in
-            s|sim|y|yes) return 0 ;;
-            n|nao|não|no) return 1 ;;
-            *) printf 'Responda s ou n.\n' ;;
-        esac
-    done
-}
-
-read_menu_key() {
-    old_stty=$(stty -g 2>/dev/null) || return 1
-    stty -icanon -echo min 1 time 0 2>/dev/null || return 1
-    key=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
-    if [ "$(printf '%s' "$key" | od -An -t x1 | tr -d ' \n')" = "1b" ]; then
-        key2=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
-        key3=$(dd if=/dev/tty bs=1 count=1 2>/dev/null || true)
-        case "$key2$key3" in
-            '[A') key=up ;;
-            '[B') key=down ;;
-            '[C') key=right ;;
-            '[D') key=left ;;
-            *) key='' ;;
-        esac
-    fi
-    stty "$old_stty" 2>/dev/null || true
-    if [ -z "$key" ] || [ "$key" = "$(printf '\n')" ]; then
-        MENU_KEY=enter
-    else
-        case "$key" in
-            up|k) MENU_KEY=up ;;
-            down|j) MENU_KEY=down ;;
-            *) MENU_KEY=other ;;
-        esac
-    fi
-}
-
-pad_to_width() {
-    pad_text=$1
-    pad_width=$2
-    pad_current=$(printf '%s' "$pad_text" | wc -m | tr -d ' ')
-    printf '%s' "$pad_text"
-    while [ "$pad_current" -lt "$pad_width" ]; do
-        printf ' '
-        pad_current=$((pad_current + 1))
-    done
-}
-
 terminal_columns() {
     columns=$(tput cols 2>/dev/null || true)
     case "$columns" in
@@ -103,6 +24,79 @@ terminal_columns() {
     printf '%s' "$columns"
 }
 
+# ------------------------------------------------------------------------
+# Ícones (Nerd Font). Ficam centralizados aqui para reaproveitar em
+# qualquer menu que precise deles.
+# ------------------------------------------------------------------------
+ICON_REDE="󰲝"
+ICON_FLATPAK=""
+ICON_FERRAMENTAS="󰺵"
+ICON_PLANO="󰈙"
+ICON_AJUDA=""
+ICON_SAIR="󰈆"
+
+# ------------------------------------------------------------------------
+# Dependências de interface (gum + figlet). Só é exigido quando o fluxo
+# realmente precisa desenhar um menu interativo; o modo `--plan --yes`
+# continua funcionando sem essas ferramentas instaladas.
+# ------------------------------------------------------------------------
+check_gum_deps() {
+    missing=''
+    command -v gum    >/dev/null 2>&1 || missing="$missing gum"
+    command -v figlet >/dev/null 2>&1 || missing="$missing figlet"
+    [ -z "$missing" ] && return 0
+
+    printf '\n[rokko-setup] dependências ausentes:%s\n\n' "$missing" >&2
+    printf 'Instale de acordo com a sua distribuição:\n\n' >&2
+    printf '  Alpine Linux : sudo apk add%s\n'    "$missing" >&2
+    printf '  Arch Linux   : sudo pacman -S%s\n'  "$missing" >&2
+    printf '  Debian/Ubuntu: sudo apt install%s\n' "$missing" >&2
+    printf '  Fedora       : sudo dnf install%s\n\n' "$missing" >&2
+    exit 1
+}
+
+# ------------------------------------------------------------------------
+# Banner "ALPINE" + subtítulo "Rokko", centralizados na largura do
+# terminal, usando figlet para o desenho e gum para a cor em truecolor.
+# Sem TTY (ex.: saída redirecionada) cai para um cabeçalho simples.
+# ------------------------------------------------------------------------
+render_banner() {
+    if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ] \
+        && command -v figlet >/dev/null 2>&1 && command -v gum >/dev/null 2>&1; then
+
+        cols=$(terminal_columns)
+        banner_text=$(figlet -f big -- ALPINE 2>/dev/null) || banner_text='ALPINE'
+
+        printf '\n'
+        printf '%s\n' "$banner_text" | while IFS= read -r line; do
+            len=$(printf '%s' "$line" | wc -m | tr -d ' ')
+            pad=$(( (cols - len) / 2 ))
+            [ "$pad" -lt 0 ] && pad=0
+            printf '%*s' "$pad" ''
+            gum style --foreground="#37E6FF" --bold -- "$line"
+        done
+
+        sub='Rokko'
+        sublen=${#sub}
+        subpad=$(( (cols - sublen) / 2 ))
+        [ "$subpad" -lt 0 ] && subpad=0
+        printf '%*s' "$subpad" ''
+        gum style --foreground="#F5F5F5" -- "$sub"
+
+        printf '\n'
+        gum style --foreground="#1FA6BD" -- "$(printf '─%.0s' $(seq 1 "$cols"))"
+        printf '\n'
+    else
+        printf '\n== ALPINE Rokko ==\n\n'
+    fi
+}
+
+# ------------------------------------------------------------------------
+# Status do sistema, no formato "campo|campo|campo|campo" para ser
+# desmembrado pelo chamador. "Load" (1 min) é usado em vez de um "CPU %"
+# inventado, porque é o dado que dá para calcular de forma confiável em
+# sh puro a partir de /proc/loadavg.
+# ------------------------------------------------------------------------
 system_status_panel() {
     status_version=$(cat /etc/alpine-release 2>/dev/null || printf '%s' 'ambiente de teste')
     status_load=$(awk '{print $1}' /proc/loadavg 2>/dev/null || printf '%s' '-')
@@ -115,32 +109,7 @@ system_status_panel() {
     printf '%s\n' "$status_version|$status_load|$status_mem|$status_net"
 }
 
-select_main_menu() {
-    menu_prompt=$1
-    shift
-    menu_count=$#
-    menu_current=1
-    [ "$menu_count" -gt 0 ] || return 1
-
-    if [ "$(terminal_columns)" -lt 100 ]; then
-        select_menu "$menu_prompt" "$@"
-        return $?
-    fi
-
-    if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
-        ui_border='\033[2;37m'
-        ui_title='\033[1;36m'
-        ui_selected='\033[1;36m'
-        ui_muted='\033[2;37m'
-        ui_reset='\033[0m'
-    else
-        ui_border=''
-        ui_title=''
-        ui_selected=''
-        ui_muted=''
-        ui_reset=''
-    fi
-
+render_status_line() {
     status_data=$(system_status_panel)
     status_version=${status_data%%|*}
     status_rest=${status_data#*|}
@@ -149,95 +118,130 @@ select_main_menu() {
     status_mem=${status_rest%%|*}
     status_net=${status_rest#*|}
 
-    while :; do
-        clear_screen
-        render_banner
-        printf '%b\n' "${ui_border}╭──────────────────────────────────────────────╮    ╭──────────────────────────────╮${ui_reset}"
-        printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(pad_to_width "$menu_prompt" 46)" "${ui_reset}  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  ${ui_title}" "$(pad_to_width 'Status do sistema' 30)" "${ui_reset}  ${ui_border}│${ui_reset}"
-        printf '%b\n' "${ui_border}├──────────────────────────────────────────────┤    ├──────────────────────────────┤${ui_reset}"
-        menu_index=1
-        for menu_item in "$@"; do
-            case "$menu_index" in
-                1) status_line='Alpine: '"$status_version" ;;
-                2) status_line='Load: '"$status_load" ;;
-                3) status_line='RAM: '"$status_mem" ;;
-                4) status_line='Rede: '"$status_net" ;;
-                *) status_line='RokkoDesk: pronto' ;;
-            esac
-            if [ "$menu_index" -eq "$menu_current" ]; then
-                printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}" "$(pad_to_width "$menu_item" 46)" "${ui_reset}  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  ${ui_muted}" "$(pad_to_width "$status_line" 30)" "${ui_reset}  ${ui_border}│${ui_reset}"
-            else
-                printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  " "$(pad_to_width "$menu_item" 46)" "  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  ${ui_muted}" "$(pad_to_width "$status_line" 30)" "${ui_reset}  ${ui_border}│${ui_reset}"
-            fi
-            printf '%b%s%b    %b%s%b\n' "${ui_border}│${ui_reset}  " "$(pad_to_width '' 46)" "  ${ui_border}│${ui_reset}" "${ui_border}│${ui_reset}  " "$(pad_to_width '' 30)" "  ${ui_border}│${ui_reset}"
-            menu_index=$((menu_index + 1))
-        done
-        printf '%b\n' "${ui_border}╰──────────────────────────────────────────────╯    ╰──────────────────────────────╯${ui_reset}"
-        printf '\n%b\n' "${ui_muted}  ↑/↓ Navegar    Enter Configurar    Ctrl+C Sair${ui_reset}"
-
-        read_menu_key || return 1
-        case "$MENU_KEY" in
-            up) menu_current=$((menu_current - 1)); [ "$menu_current" -ge 1 ] || menu_current=$menu_count ;;
-            down) menu_current=$((menu_current + 1)); [ "$menu_current" -le "$menu_count" ] || menu_current=1 ;;
-            enter) MENU_SELECTION=$menu_current; return 0 ;;
-        esac
-    done
+    if command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
+        gum style --foreground="#8A8A8A" -- \
+            "Alpine ${status_version} │ Load: ${status_load} │ RAM: ${status_mem} │ Rede: ${status_net}"
+    else
+        printf '%s\n' "Alpine ${status_version} │ Load: ${status_load} │ RAM: ${status_mem} │ Rede: ${status_net}"
+    fi
 }
 
+render_shortcuts() {
+    text=$1
+    if command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
+        gum style --foreground="#8A8A8A" -- "$text"
+    else
+        printf '%s\n' "$text"
+    fi
+}
+
+# ------------------------------------------------------------------------
+# Menu genérico (submenus). Usa `gum choose`; a seleção final é
+# recuperada comparando o texto escolhido com a lista original, então
+# funciona mesmo com rótulos com ícone embutido.
+# ------------------------------------------------------------------------
 select_menu() {
     menu_prompt=$1
     shift
-    menu_current=1
-    menu_count=$#
-    [ "$menu_count" -gt 0 ] || return 1
+    [ "$#" -gt 0 ] || return 1
 
-    if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ]; then
-        ui_border='\033[2;37m'
-        ui_title='\033[1;36m'
-        ui_selected='\033[1;36m'
-        ui_muted='\033[2;37m'
-        ui_reset='\033[0m'
-    else
-        ui_border=''
-        ui_title=''
-        ui_selected=''
-        ui_muted=''
-        ui_reset=''
+    clear_screen
+    render_banner
+
+    choice=$(gum choose \
+        --header="$menu_prompt" \
+        --header.bold \
+        --header.foreground="#F5F5F5" \
+        --cursor="▶ " \
+        --cursor.foreground="#37E6FF" \
+        --selected.background="#0E7C93" \
+        --selected.foreground="#FFFFFF" \
+        --selected.bold \
+        --height="$(( $# + 1 ))" \
+        "$@")
+    rc=$?
+
+    printf '\n'
+    render_shortcuts "↑/↓ Navegar    Enter Selecionar    Ctrl+C Sair"
+
+    [ "$rc" -eq 0 ] && [ -n "$choice" ] || return 1
+
+    idx=1
+    for item in "$@"; do
+        if [ "$item" = "$choice" ]; then
+            MENU_SELECTION=$idx
+            return 0
+        fi
+        idx=$((idx + 1))
+    done
+    return 1
+}
+
+# ------------------------------------------------------------------------
+# Menu principal: banner, o `gum choose` estilizado (barra de fundo no
+# item ativo) e, logo abaixo, a linha de status + a barra de atalhos —
+# na mesma ordem da referência visual do projeto.
+# ------------------------------------------------------------------------
+select_main_menu() {
+    menu_prompt=$1
+    shift
+    [ "$#" -gt 0 ] || return 1
+
+    clear_screen
+    render_banner
+
+    choice=$(gum choose \
+        --header="$menu_prompt" \
+        --header.bold \
+        --header.foreground="#F5F5F5" \
+        --cursor="▶ " \
+        --cursor.foreground="#37E6FF" \
+        --selected.background="#0E7C93" \
+        --selected.foreground="#FFFFFF" \
+        --selected.bold \
+        --height="$(( $# + 1 ))" \
+        "$@")
+    rc=$?
+
+    printf '\n'
+    render_status_line
+    printf '\n'
+    render_shortcuts "↑/↓ Navegar    Enter Configurar    Ctrl+C Sair"
+
+    [ "$rc" -eq 0 ] && [ -n "$choice" ] || return 1
+
+    idx=1
+    for item in "$@"; do
+        if [ "$item" = "$choice" ]; then
+            MENU_SELECTION=$idx
+            return 0
+        fi
+        idx=$((idx + 1))
+    done
+    return 1
+}
+
+ask_yes_no() {
+    question=$1
+    default=${2:-n}
+    if command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
+        if [ "$default" = "s" ]; then
+            gum confirm --default=true -- "$question"
+        else
+            gum confirm --default=false -- "$question"
+        fi
+        return $?
     fi
-
     while :; do
-        clear_screen
-        render_banner
-        printf '%b\n' "${ui_border}╭────────────────────────────────────────────────────────────────────────────╮${ui_reset}"
-        printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_title}" "$(pad_to_width "$menu_prompt" 72)" "${ui_reset}  ${ui_border}│${ui_reset}"
-        printf '%b\n' "${ui_border}├────────────────────────────────────────────────────────────────────────────┤${ui_reset}"
-        menu_index=1
-        for menu_item in "$@"; do
-            if [ "$menu_index" -eq "$menu_current" ]; then
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  ${ui_selected}" "$(pad_to_width "$menu_item" 72)" "${ui_reset}  ${ui_border}│${ui_reset}"
-            else
-                printf '%b%s%b\n' "${ui_border}│${ui_reset}  " "$(pad_to_width "$menu_item" 72)" "  ${ui_border}│${ui_reset}"
-            fi
-            printf '%b%s%b\n' "${ui_border}│${ui_reset}    " "$(pad_to_width '' 70)" "  ${ui_border}│${ui_reset}"
-            menu_index=$((menu_index + 1))
-        done
-        printf '%b\n' "${ui_border}╰────────────────────────────────────────────────────────────────────────────╯${ui_reset}"
-        printf '%b\n' "${ui_muted}  ↑/↓ Navegar    Enter Selecionar    Ctrl+C Sair${ui_reset}"
-
-        read_menu_key || return 1
-        case "$MENU_KEY" in
-            up)
-                menu_current=$((menu_current - 1))
-                [ "$menu_current" -ge 1 ] || menu_current=$menu_count
-                ;;
-            down)
-                menu_current=$((menu_current + 1))
-                [ "$menu_current" -le "$menu_count" ] || menu_current=1
-                ;;
-            enter)
-                MENU_SELECTION=$menu_current
-                return 0
-                ;;
+        if [ "$default" = "s" ]; then suffix='[S/n]'; else suffix='[s/N]'; fi
+        printf '%s %s ' "$question" "$suffix"
+        IFS= read -r answer || answer=''
+        answer=$(printf '%s' "$answer" | tr '[:upper:]' '[:lower:]')
+        [ -z "$answer" ] && answer=$default
+        case "$answer" in
+            s|sim|y|yes) return 0 ;;
+            n|nao|não|no) return 1 ;;
+            *) printf 'Responda s ou n.\n' ;;
         esac
     done
 }

@@ -6,7 +6,7 @@ pkgdesc="Assistente guiado RokkoDesk para configuração desktop do Alpine Linux
 url="https://example.invalid/rokko-setup"
 arch="noarch"
 license="MIT"
-depends="apk-tools"
+depends="apk-tools gum figlet"
 source=""
 
 build() { :; }
