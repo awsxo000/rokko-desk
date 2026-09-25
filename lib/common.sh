@@ -77,28 +77,55 @@ check_gum_deps() {
 }
 
 # ------------------------------------------------------------------------
-# Banner "ALPINE" + subtítulo "Rokko", centralizados na largura do
+# Banner pontilhado "ROKKO" + subtítulo "Alpine", centralizados na largura do
 # terminal, usando figlet para o desenho e gum para a cor em truecolor.
 # Sem TTY (ex.: saída redirecionada) cai para um cabeçalho simples.
 # ------------------------------------------------------------------------
+dot_row() {
+    dot_pattern=$1
+    dot_output=''
+    dot_pos=1
+    while [ "$dot_pos" -le "${#dot_pattern}" ]; do
+        dot_cell=$(printf '%s' "$dot_pattern" | cut -c "$dot_pos")
+        [ "$dot_cell" = '1' ] && dot_output="${dot_output}● " || dot_output="${dot_output}  "
+        dot_pos=$((dot_pos + 1))
+    done
+    printf '%s' "$dot_output"
+}
+
+render_dot_wordmark() {
+    dot_rows='11110 10001 11110 10100 10010|01110 10001 10001 10001 01110|10001 10010 11100 10010 10001|10001 10010 11100 10010 10001|01110 10001 10001 10001 01110'
+    old_ifs=$IFS; IFS='|'; set -- $dot_rows; IFS=$old_ifs
+    dot_index=1
+    while [ "$dot_index" -le 5 ]; do
+        dot_line=''
+        for dot_letter in "$@"; do
+            dot_pattern=$(printf '%s' "$dot_letter" | cut -d ' ' -f "$dot_index")
+            dot_line="${dot_line}$(dot_row "$dot_pattern")  "
+        done
+        printf '%s\n' "$dot_line"
+        dot_index=$((dot_index + 1))
+    done
+}
+
 render_banner() {
     if [ "${ROKKO_TUI:-0}" -eq 1 ]; then
-        banner_color='\033[1;96m'
-        subtitle_color='\033[1;97m'
+        banner_color='\033[1;97m'
+        grid_color='\033[2;31m'
+        subtitle_color='\033[1;91m'
         reset_color='\033[0m'
         cols=$(terminal_columns)
-        figlet_font="$PROJECT_ROOT/assets/rokko.flf"
-        [ -f "$figlet_font" ] || figlet_font=big
-        banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null || printf '%s\n' 'ALPINE')
         printf '\n'
-        printf '%s\n' "$banner_text" | while IFS= read -r line; do
+        printf '%b%s%b\n' "$grid_color" "$(repeat_char '·' "$cols")" "$reset_color"
+        dot_wordmark=$(render_dot_wordmark)
+        printf '%s\n' "$dot_wordmark" | while IFS= read -r line; do
             len=$(printf '%s' "$line" | wc -m | tr -d ' ')
             pad=$(( (cols - len) / 2 )); [ "$pad" -lt 0 ] && pad=0
             printf '%*s%b%s%b\n' "$pad" '' "$banner_color" "$line" "$reset_color"
         done
-        sub='Rokko'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
+        sub='ROKKO DESK'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
         printf '%*s%b%s%b\n\n' "$subpad" '' "$subtitle_color" "$sub" "$reset_color"
-        printf '%b%s%b\n' "$banner_color" "$(repeat_char '─' "$cols")" "$reset_color"
+        printf '%b%s%b\n' "$grid_color" "$(repeat_char '·' "$cols")" "$reset_color"
         return 0
     fi
     if [ -t 1 ] && [ "${TERM:-dumb}" != "dumb" ] \
@@ -295,9 +322,9 @@ show_help_screen() {
 }
 
 draw_tui_panel() {
-        printf '╭%s╮\n' "$(repeat_char '─' "$((panel_width - 2))")"
+        printf '\033[2;31m╭%s╮\033[0m\n' "$(repeat_char '─' "$((panel_width - 2))")"
         printf '│  %s│\n' "$(pad_to_width "$menu_prompt" "$inner_width")"
-        printf '├%s┤\n' "$(repeat_char '─' "$((panel_width - 2))")"
+        printf '\033[2;31m├%s┤\033[0m\n' "$(repeat_char '─' "$((panel_width - 2))")"
         menu_index=1
         for menu_item in "$@"; do
             if [ "$menu_index" -eq "$menu_current" ]; then
@@ -307,7 +334,7 @@ draw_tui_panel() {
             fi
             menu_index=$((menu_index + 1))
         done
-        printf '╰%s╯\n' "$(repeat_char '─' "$((panel_width - 2))")"
+        printf '\033[2;31m╰%s╯\033[0m\n' "$(repeat_char '─' "$((panel_width - 2))")"
         render_status_line
         printf '\n'
         render_shortcuts "[↑/↓] Navegar  •  [Enter] Configurar  •  [H] Ajuda  •  [Ctrl+C] Sair"
