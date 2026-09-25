@@ -36,7 +36,7 @@ A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
 
-Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para cores e estilo, `figlet` para o wordmark **ALPINE** e um TUI próprio para o painel arredondado, a faixa selecionada e o rodapé fixo. A opção `H` abre a tela de ajuda. A seleção usa gradiente cyan/azul e os ícones usam Nerd Font por padrão. Se a fonte não estiver configurada no terminal, use `ROKKO_ICON_MODE=fallback` para símbolos comuns ou `ROKKO_ICON_MODE=none` para ocultá-los.
+Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para cores e estilo, `figlet` para o wordmark **ALPINE** e um TUI próprio para o painel arredondado, a faixa selecionada e o rodapé fixo. O painel usa uma largura maior, uma coluna exclusiva para os ícones e espaçamento reforçado entre ícone e rótulo. A opção `H` abre a tela de ajuda. A seleção usa uma faixa cyan/azul e os ícones usam Nerd Font por padrão. O tamanho físico do ícone é controlado pelo tamanho da fonte do emulador de terminal; para vê-los maiores, aumente o tamanho da JetBrainsMono Nerd Font nas preferências do Konsole. Se a fonte não estiver configurada no terminal, use `ROKKO_ICON_MODE=fallback` para símbolos comuns ou `ROKKO_ICON_MODE=none` para ocultá-los.
 
 Para executar a interface interativa a partir do checkout, instale as dependências no Alpine:
 

@@ -239,6 +239,19 @@ render_gradient_line() {
     printf '│\n'
 }
 
+render_menu_line() {
+    menu_line_text=$1
+    menu_line_width=$2
+    menu_line_icon=${menu_line_text%%  *}
+    menu_line_label=${menu_line_text#"$menu_line_icon"}
+    if [ "$menu_line_icon" = "$menu_line_text" ] || [ "${ROKKO_ICON_MODE:-nerd}" = 'none' ]; then
+        printf '│  %s│\n' "$(pad_to_width "$menu_line_text" "$menu_line_width")"
+        return 0
+    fi
+    menu_line_label=${menu_line_label#  }
+    printf '│  \033[1;96m%s\033[0m  %s│\n' "$menu_line_icon" "$(pad_to_width "$menu_line_label" "$((menu_line_width - 6))")"
+}
+
 show_help_screen() {
     clear_screen
     render_banner
@@ -265,7 +278,7 @@ draw_tui_panel() {
             if [ "$menu_index" -eq "$menu_current" ]; then
                 render_gradient_line "$menu_item" "$inner_width"
             else
-                printf '│  %s│\n' "$(pad_to_width "$menu_item" "$inner_width")"
+                render_menu_line "$menu_item" "$inner_width"
             fi
             menu_index=$((menu_index + 1))
         done
@@ -282,8 +295,8 @@ select_tui_menu() {
     menu_current=1
     [ "$menu_count" -gt 0 ] || return 1
     panel_width=$(terminal_columns)
-    [ "$panel_width" -gt 84 ] && panel_width=84
-    [ "$panel_width" -lt 56 ] && panel_width=56
+    [ "$panel_width" -gt 110 ] && panel_width=110
+    [ "$panel_width" -lt 72 ] && panel_width=72
     inner_width=$((panel_width - 4))
     ROKKO_TUI=1
 
