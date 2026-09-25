@@ -2,7 +2,7 @@
 pkgname=rokko-setup
 pkgver=0.1.0
 pkgrel=0
-pkgdesc="Assistente guiado RokkoDesk para configuração desktop do Alpine Linux"
+pkgdesc="Assistente guiado ALPDesk para configuração desktop do Alpine Linux"
 url="https://example.invalid/rokko-setup"
 arch="noarch"
 license="MIT"
