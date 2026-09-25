@@ -44,6 +44,27 @@ Para executar a interface interativa a partir do checkout, instale as dependênc
 sudo apk add gum figlet
 ```
 
+### Desenvolvimento e pré-visualização pelo GitHub
+
+Depois do primeiro clone, não é necessário baixar ou extrair ZIPs a cada alteração:
+
+```sh
+git clone https://github.com/awsxo000/rokko-desk.git
+cd rokko-desk
+sudo apk add git gum figlet font-jetbrains-mono-nerd
+chmod +x dev/run-preview.sh
+./dev/run-preview.sh
+```
+
+Nas próximas vezes, basta executar:
+
+```sh
+cd rokko-desk
+./dev/run-preview.sh
+```
+
+O script atualiza a cópia com `git pull --ff-only`, garante a permissão do executável e abre `rokko-setup --plan`. Se você tiver alterações locais não commitadas, ele interrompe antes do `pull` para não sobrescrevê-las.
+
 Para obter os ícones da referência, instale uma Nerd Font e selecione-a nas preferências do seu emulador de terminal:
 
 ```sh
