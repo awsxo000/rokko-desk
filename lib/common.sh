@@ -177,7 +177,30 @@ render_status_line() {
     status_mem=${status_rest%%|*}
     status_net=${status_rest#*|}
 
-    if [ "${ROKKO_TUI:-0}" -eq 1 ]; then printf "\033[37m%s\033[0m\n" "Alpine ${status_version} │ CPU: ${status_cpu}% │ RAM: ${status_mem} │ Net: ${status_net}"; elif command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
+    if [ "${ROKKO_TUI:-0}" -eq 1 ]; then
+        powerline_sep='▶'
+        [ "${ROKKO_ICON_MODE:-nerd}" = 'nerd' ] && powerline_sep=''
+        status_icon_alpine='▲'
+        status_icon_cpu='▣'
+        status_icon_ram='▤'
+        status_icon_net='●'
+        if [ "${ROKKO_ICON_MODE:-nerd}" = 'nerd' ]; then
+            status_icon_alpine='󰣇'
+            status_icon_cpu='󰍛'
+            status_icon_ram='󰘚'
+            status_icon_net='󰖩'
+        elif [ "${ROKKO_ICON_MODE:-nerd}" = 'none' ]; then
+            status_icon_alpine=''; status_icon_cpu=''; status_icon_ram=''; status_icon_net=''
+        fi
+        printf '\n'
+        printf '\033[48;2;245;245;245m\033[38;2;25;35;45m  %s Alpine %s  \033[0m' "$status_icon_alpine" "$status_version"
+        printf '\033[38;2;245;245;245m\033[48;2;45;121;174m%s\033[0m' "$powerline_sep"
+        printf '\033[48;2;45;121;174m\033[38;2;255;255;255m  %s CPU %s%%  \033[0m' "$status_icon_cpu" "$status_cpu"
+        printf '\033[38;2;45;121;174m\033[48;2;220;195;35m%s\033[0m' "$powerline_sep"
+        printf '\033[48;2;220;195;35m\033[38;2;25;25;20m  %s RAM %s  \033[0m' "$status_icon_ram" "$status_mem"
+        printf '\033[38;2;220;195;35m\033[48;2;35;145;105m%s\033[0m' "$powerline_sep"
+        printf '\033[48;2;35;145;105m\033[38;2;255;255;255m  %s NET %s  \033[0m\n' "$status_icon_net" "$status_net"
+    elif command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
         gum style --foreground="#8A8A8A" -- \
             "Alpine ${status_version} │ CPU: ${status_cpu}% │ RAM: ${status_mem} │ Net: ${status_net}"
     else
