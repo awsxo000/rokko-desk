@@ -25,15 +25,15 @@ terminal_columns() {
 }
 
 # ------------------------------------------------------------------------
-# Ícones (Nerd Font). Ficam centralizados aqui para reaproveitar em
-# qualquer menu que precise deles.
+# Ícones compatíveis. Usamos símbolos Unicode comuns por padrão para que
+# apareçam mesmo quando o terminal não utiliza Nerd Font.
 # ------------------------------------------------------------------------
-ICON_REDE="󰲝"
-ICON_FLATPAK=""
-ICON_FERRAMENTAS="󰺵"
-ICON_PLANO="󰈙"
-ICON_AJUDA=""
-ICON_SAIR="󰈆"
+ICON_REDE="◉"
+ICON_FLATPAK="◆"
+ICON_FERRAMENTAS="⚙"
+ICON_PLANO="▤"
+ICON_AJUDA="?"
+ICON_SAIR="×"
 
 # ------------------------------------------------------------------------
 # Dependências de interface (gum + figlet). Só é exigido quando o fluxo

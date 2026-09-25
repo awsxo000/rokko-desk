@@ -36,7 +36,7 @@ A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
 
-Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para renderizar menus, seleção, cores e atalhos, e `figlet` para o wordmark **ALPINE**. A opção ativa recebe destaque visual em cyan/azul no estilo da referência do projeto. Em modo não interativo, o fluxo de planejamento continua disponível sem depender desses componentes visuais.
+Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para renderizar menus, seleção, cores e atalhos, e `figlet` para o wordmark **ALPINE**. Os menus usam símbolos Unicode comuns (`◉`, `◆`, `⚙`, `▤`, `×`) em vez de exigir Nerd Font, garantindo que os ícones apareçam na maioria dos terminais. A opção ativa recebe destaque visual em cyan/azul no estilo da referência do projeto. Em modo não interativo, o fluxo de planejamento continua disponível sem depender desses componentes visuais.
 
 Para executar a interface interativa a partir do checkout, instale as dependências no Alpine:
 
