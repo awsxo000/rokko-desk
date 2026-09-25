@@ -94,6 +94,10 @@ render_logo_frame() {
         logo_left=$(( (logo_frame_max - logo_len) / 2 + 2 )); [ "$logo_left" -lt 2 ] && logo_left=2
         logo_content=$(printf '%*s%s' "$logo_left" '' "$logo_line")
         logo_content=$(pad_to_width "$logo_content" "$logo_frame_inner")
+        # Completa os espaços internos com o mesmo caractere-base da arte,
+        # transformando o logotipo orgânico em um bloco quadrado sem trocar
+        # os detalhes originais (/, +, h, :, ` e demais marcas).
+        logo_content=$(printf '%s' "$logo_content" | tr ' ' 'd')
         printf '%s%b│%b%b%s%b%b│%b\n' "$logo_frame_indent" "$frame_color" "$reset_color" "$logo_color" "$logo_content" "$reset_color" "$frame_color" "$reset_color"
     done
     printf '%s%b╰%s╯%b\n' "$logo_frame_indent" "$frame_color" "$(repeat_char '─' "$logo_frame_inner")" "$reset_color"
