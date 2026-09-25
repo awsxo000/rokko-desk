@@ -6,6 +6,7 @@ ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 
 DRY_RUN=0
 ASSUME_YES=0
+SHOW_INFO=0
 
 usage() {
     cat <<USAGE
@@ -16,6 +17,7 @@ Assistente guiado e modular do RokkoDesk para Alpine Linux.
 Opções:
   --plan       mostra o plano sem alterar o sistema
   --yes        aceita as escolhas padrão e executa sem perguntas
+  --info       mostra informações detalhadas do sistema com fastfetch
   --help       mostra esta ajuda
 USAGE
 }
@@ -24,6 +26,7 @@ while [ "$#" -gt 0 ]; do
     case "$1" in
         --plan) DRY_RUN=1 ;;
         --yes) ASSUME_YES=1 ;;
+        --info) SHOW_INFO=1 ;;
         --help|-h) usage; exit 0 ;;
         *) die "Opção desconhecida: $1" ;;
     esac
@@ -31,6 +34,11 @@ while [ "$#" -gt 0 ]; do
 done
 
 require_alpine
+
+if [ "$SHOW_INFO" -eq 1 ]; then
+    command -v fastfetch >/dev/null 2>&1 || die "fastfetch não está instalado; use: sudo apk add fastfetch"
+    exec fastfetch
+fi
 
 NETWORK_BACKEND=keep
 CHOICE_FLATPAK=0

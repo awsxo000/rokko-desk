@@ -43,7 +43,21 @@ Os ícones aparecem em badges maiores por padrão, por exemplo `[ 󰖩 ]`, para 
 Para executar a interface interativa a partir do checkout, instale as dependências no Alpine:
 
 ```sh
-sudo apk add gum figlet
+sudo apk add gum figlet dialog fastfetch
+```
+
+O projeto escolhe **dialog** em vez de `whiptail` para widgets TUI, confirmações e listas. O `dialog` oferece uma API mais completa para a evolução dos menus, enquanto o TUI atual continua sendo usado nesta fase para preservar a navegação já validada.
+
+O **fastfetch** é usado para exibir uma visão detalhada do sistema:
+
+```sh
+./bin/rokko-setup --info
+```
+
+Instalação direta no Alpine:
+
+```sh
+sudo apk add dialog fastfetch
 ```
 
 ### Desenvolvimento e pré-visualização pelo GitHub
@@ -53,7 +67,7 @@ Depois do primeiro clone, não é necessário baixar ou extrair ZIPs a cada alte
 ```sh
 git clone https://github.com/awsxo000/rokko-desk.git
 cd rokko-desk
-sudo apk add git gum figlet font-jetbrains-mono-nerd
+sudo apk add git gum figlet dialog fastfetch font-jetbrains-mono-nerd
 chmod +x dev/run-preview.sh
 ./dev/run-preview.sh
 ```
