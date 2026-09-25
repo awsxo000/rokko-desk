@@ -77,8 +77,9 @@ check_gum_deps() {
 }
 
 # ------------------------------------------------------------------------
-# Banner "ALPINE" + subtítulo "Rokko", centralizados na largura do
-# terminal, usando figlet para o desenho e gum para a cor em truecolor.
+# Banner Alpine no estilo Fastfetch + subtítulo "RokkoDesk", centralizados
+# na largura do terminal. O asset local evita executar fastfetch a cada
+# tecla; FIGlet permanece como fallback para instalações antigas.
 # Sem TTY (ex.: saída redirecionada) cai para um cabeçalho simples.
 # ------------------------------------------------------------------------
 render_banner() {
@@ -87,16 +88,21 @@ render_banner() {
         subtitle_color='\033[1;97m'
         reset_color='\033[0m'
         cols=$(terminal_columns)
-        figlet_font="$PROJECT_ROOT/assets/rokko.flf"
-        [ -f "$figlet_font" ] || figlet_font=big
-        banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null || printf '%s\n' 'ALPINE')
+        logo_file="$PROJECT_ROOT/assets/alpine-fastfetch.txt"
+        if [ -f "$logo_file" ]; then
+            banner_text=$(cat "$logo_file")
+        else
+            figlet_font="$PROJECT_ROOT/assets/rokko.flf"
+            [ -f "$figlet_font" ] || figlet_font=big
+            banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null || printf '%s\n' 'ALPINE')
+        fi
         printf '\n'
         printf '%s\n' "$banner_text" | while IFS= read -r line; do
             len=$(printf '%s' "$line" | wc -m | tr -d ' ')
             pad=$(( (cols - len) / 2 )); [ "$pad" -lt 0 ] && pad=0
             printf '%*s%b%s%b\n' "$pad" '' "$banner_color" "$line" "$reset_color"
         done
-        sub='Rokko'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
+        sub='RokkoDesk'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
         printf '%*s%b%s%b\n\n' "$subpad" '' "$subtitle_color" "$sub" "$reset_color"
         printf '%b%s%b\n' "$banner_color" "$(repeat_char '─' "$cols")" "$reset_color"
         return 0
@@ -105,9 +111,14 @@ render_banner() {
         && command -v figlet >/dev/null 2>&1 && command -v gum >/dev/null 2>&1; then
 
         cols=$(terminal_columns)
-        figlet_font="$PROJECT_ROOT/assets/rokko.flf"
-        [ -f "$figlet_font" ] || figlet_font=big
-        banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null) || banner_text='ALPINE'
+        logo_file="$PROJECT_ROOT/assets/alpine-fastfetch.txt"
+        if [ -f "$logo_file" ]; then
+            banner_text=$(cat "$logo_file")
+        else
+            figlet_font="$PROJECT_ROOT/assets/rokko.flf"
+            [ -f "$figlet_font" ] || figlet_font=big
+            banner_text=$(figlet -f "$figlet_font" -- ALPINE 2>/dev/null) || banner_text='ALPINE'
+        fi
 
         printf '\n'
         printf '%s\n' "$banner_text" | while IFS= read -r line; do
@@ -118,7 +129,7 @@ render_banner() {
             gum style --foreground="#37E6FF" --bold -- "$line"
         done
 
-        sub='Rokko'
+        sub='RokkoDesk'
         sublen=${#sub}
         subpad=$(( (cols - sublen) / 2 ))
         [ "$subpad" -lt 0 ] && subpad=0

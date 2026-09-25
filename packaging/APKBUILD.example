@@ -19,4 +19,5 @@ package() {
     install -m644 "$srcdir/../../lib/common.sh" "$pkgdir/usr/share/rokko-setup/lib/common.sh"
     install -m644 "$srcdir/../../modules/"*.sh "$pkgdir/usr/share/rokko-setup/modules/"
     install -m644 "$srcdir/../../assets/rokko.flf" "$pkgdir/usr/share/rokko-setup/assets/rokko.flf"
+    install -m644 "$srcdir/../../assets/alpine-fastfetch.txt" "$pkgdir/usr/share/rokko-setup/assets/alpine-fastfetch.txt"
 }
