@@ -38,6 +38,8 @@ A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pod
 
 Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para cores e estilo, um wordmark pontilhado próprio e um TUI para o painel arredondado, a faixa selecionada e o rodapé fixo. O topo usa pontos brancos, linhas de grade vermelha discreta e o wordmark **ROKKO DESK**; a moldura do painel acompanha a mesma linguagem técnica. O painel usa uma largura maior, uma coluna exclusiva para os ícones e espaçamento reforçado entre ícone e rótulo. Abaixo do painel, o status usa blocos no estilo **Powerline** para Alpine, CPU, RAM e NET, com separadores em seta e cores independentes. A opção `H` abre a tela de ajuda. A seleção usa uma faixa cyan/azul e os ícones usam Nerd Font por padrão. O tamanho físico do ícone é controlado pelo tamanho da fonte do emulador de terminal; para vê-los maiores, aumente o tamanho da JetBrainsMono Nerd Font nas preferências do Konsole. Se a fonte não estiver configurada no terminal, use `ROKKO_ICON_MODE=fallback` para símbolos comuns ou `ROKKO_ICON_MODE=none` para ocultá-los.
 
+A camada visual usa **unicase** por padrão: os textos são exibidos em caixa alta para eliminar a diferença visual entre maiúsculas e minúsculas, aproximando-se de uma fonte técnica mais pesada. O modo pode ser desativado com `ROKKO_UI_CASE=normal`. Para uma aparência mais marcante, selecione **JetBrainsMono Nerd Font Bold** ou **JetBrainsMono Nerd Font** em tamanho maior no terminal.
+
 Para executar a interface interativa a partir do checkout, instale as dependências no Alpine:
 
 ```sh

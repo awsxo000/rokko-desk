@@ -32,6 +32,13 @@ terminal_lines() {
     printf '%s' "$lines"
 }
 
+ui_text() {
+    case "${ROKKO_UI_CASE:-upper}" in
+        upper) printf '%s' "$1" | tr '[:lower:]' '[:upper:]' ;;
+        *) printf '%s' "$1" ;;
+    esac
+}
+
 pad_to_width() {
     pad_text=$1
     pad_width=$2
@@ -203,6 +210,10 @@ render_status_line() {
     status_rest=${status_rest#*|}
     status_mem=${status_rest%%|*}
     status_net=${status_rest#*|}
+    status_label=$(ui_text "Alpine ${status_version}")
+    cpu_label=$(ui_text 'CPU')
+    ram_label=$(ui_text 'RAM')
+    net_label=$(ui_text 'NET')
 
     if [ "${ROKKO_TUI:-0}" -eq 1 ]; then
         powerline_sep='▶'
@@ -220,13 +231,13 @@ render_status_line() {
             status_icon_alpine=''; status_icon_cpu=''; status_icon_ram=''; status_icon_net=''
         fi
         printf '\n'
-        printf '\033[48;2;245;245;245m\033[38;2;25;35;45m  %s Alpine %s  \033[0m' "$status_icon_alpine" "$status_version"
+        printf '\033[48;2;245;245;245m\033[38;2;25;35;45m  %s %s  \033[0m' "$status_icon_alpine" "$status_label"
         printf '\033[38;2;245;245;245m\033[48;2;45;121;174m%s\033[0m' "$powerline_sep"
-        printf '\033[48;2;45;121;174m\033[38;2;255;255;255m  %s CPU %s%%  \033[0m' "$status_icon_cpu" "$status_cpu"
+        printf '\033[48;2;45;121;174m\033[38;2;255;255;255m  %s %s %s%%  \033[0m' "$status_icon_cpu" "$cpu_label" "$status_cpu"
         printf '\033[38;2;45;121;174m\033[48;2;220;195;35m%s\033[0m' "$powerline_sep"
-        printf '\033[48;2;220;195;35m\033[38;2;25;25;20m  %s RAM %s  \033[0m' "$status_icon_ram" "$status_mem"
+        printf '\033[48;2;220;195;35m\033[38;2;25;25;20m  %s %s %s  \033[0m' "$status_icon_ram" "$ram_label" "$status_mem"
         printf '\033[38;2;220;195;35m\033[48;2;35;145;105m%s\033[0m' "$powerline_sep"
-        printf '\033[48;2;35;145;105m\033[38;2;255;255;255m  %s NET %s  \033[0m\n' "$status_icon_net" "$status_net"
+        printf '\033[48;2;35;145;105m\033[38;2;255;255;255m  %s %s %s  \033[0m\n' "$status_icon_net" "$net_label" "$(ui_text "$status_net")"
     elif command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
         gum style --foreground="#8A8A8A" -- \
             "Alpine ${status_version} │ CPU: ${status_cpu}% │ RAM: ${status_mem} │ Net: ${status_net}"
@@ -237,7 +248,7 @@ render_status_line() {
 
 render_shortcuts() {
     text=$1
-    if [ "${ROKKO_TUI:-0}" -eq 1 ]; then printf "\033[37m%s\033[0m\n" "$text"; elif command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
+    if [ "${ROKKO_TUI:-0}" -eq 1 ]; then printf "\033[37m%s\033[0m\n" "$(ui_text "$text")"; elif command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
         gum style --foreground="#8A8A8A" -- "$text"
     else
         printf '%s\n' "$text"
@@ -281,7 +292,7 @@ repeat_char() {
 }
 
 render_gradient_line() {
-    gradient_text=$1
+    gradient_text=$(ui_text "$1")
     gradient_width=$2
     gradient_pad=$(pad_to_width "$gradient_text" "$gradient_width")
     printf '│  '
@@ -290,7 +301,7 @@ render_gradient_line() {
 }
 
 render_menu_line() {
-    menu_line_text=$1
+    menu_line_text=$(ui_text "$1")
     menu_line_width=$2
     menu_line_icon=${menu_line_text%%  *}
     menu_line_label=${menu_line_text#"$menu_line_icon"}
@@ -323,7 +334,7 @@ show_help_screen() {
 
 draw_tui_panel() {
         printf '\033[2;31m╭%s╮\033[0m\n' "$(repeat_char '─' "$((panel_width - 2))")"
-        printf '│  %s│\n' "$(pad_to_width "$menu_prompt" "$inner_width")"
+        printf '│  %s│\n' "$(pad_to_width "$(ui_text "$menu_prompt")" "$inner_width")"
         printf '\033[2;31m├%s┤\033[0m\n' "$(repeat_char '─' "$((panel_width - 2))")"
         menu_index=1
         for menu_item in "$@"; do
