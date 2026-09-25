@@ -249,7 +249,9 @@ render_menu_line() {
         return 0
     fi
     menu_line_label=${menu_line_label#  }
-    printf '│  \033[1;96m%s\033[0m  %s│\n' "$menu_line_icon" "$(pad_to_width "$menu_line_label" "$((menu_line_width - 6))")"
+    # O ícone ocupa uma coluna e os dois espaços ao redor ocupam duas;
+    # portanto o rótulo precisa preencher exatamente width - 3 colunas.
+    printf '│  \033[1;96m%s\033[0m  %s│\n' "$menu_line_icon" "$(pad_to_width "$menu_line_label" "$((menu_line_width - 3))")"
 }
 
 show_help_screen() {
