@@ -5,33 +5,33 @@
 O comando oficial do projeto é:
 
 ```sh
-rokko-setup
+alp-setup
 ```
 
 > Estado atual: protótipo inicial. Os procedimentos específicos de cada módulo ainda devem ser revisados contra a documentação oficial do Alpine antes de uma versão pública estável.
 
 ## Personalidade
 
-O ALPDesk funciona como um guia técnico de preparação do sistema: explica cada etapa, apresenta as escolhas de forma clara e não aplica alterações sem uma confirmação explícita do usuário. A ferramenta deve ser amigável sem ser infantil e técnica sem exigir conhecimento desnecessário.
+O ALPDesk funciona como um guia técnico de preparação do sistema: explica cada etapa, apresenta as escolhas de forma clara e não aplica alterações sem uma confirmação explícita do usuário. A ferramenta deve ser amigável sem ser infantil e técnica sem exigir conhecimento desnecessário. O comando oficial é `alp-setup`; `rokko-setup` permanece apenas como compatibilidade temporária.
 
 ## Uso
 
 No checkout do projeto, a ferramenta pode ser executada assim:
 
 ```sh
-./bin/rokko-setup
+./bin/alp-setup
 ```
 
 Antes de aplicar qualquer mudança, é possível visualizar o plano:
 
 ```sh
-./bin/rokko-setup --plan --yes
+./bin/alp-setup --plan --yes
 ```
 
 A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para testes automatizados:
 
 ```sh
-./bin/rokko-setup --yes
+./bin/alp-setup --yes
 ```
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
@@ -53,7 +53,7 @@ O projeto escolhe **dialog** em vez de `whiptail` para widgets TUI, confirmaçõ
 O **fastfetch** é usado para exibir uma visão detalhada do sistema:
 
 ```sh
-./bin/rokko-setup --info
+./bin/alp-setup --info
 ```
 
 Instalação direta no Alpine:
@@ -81,7 +81,7 @@ cd rokko-desk
 ./dev/run-preview.sh
 ```
 
-O script atualiza a cópia com `git pull --ff-only`, garante a permissão do executável e abre `rokko-setup --plan`. Se você tiver alterações locais não commitadas, ele interrompe antes do `pull` para não sobrescrevê-las.
+O script atualiza a cópia com `git pull --ff-only`, garante a permissão do executável e abre `alp-setup --plan`. Se você tiver alterações locais não commitadas, ele interrompe antes do `pull` para não sobrescrevê-las.
 
 Para obter os ícones da referência, instale uma Nerd Font e selecione-a nas preferências do seu emulador de terminal:
 
@@ -92,8 +92,8 @@ sudo apk add font-jetbrains-mono-nerd
 Exemplos de fallback:
 
 ```sh
-ROKKO_ICON_MODE=fallback ./bin/rokko-setup --plan
-ROKKO_ICON_MODE=none ./bin/rokko-setup --plan
+ROKKO_ICON_MODE=fallback ./bin/alp-setup --plan
+ROKKO_ICON_MODE=none ./bin/alp-setup --plan
 ```
 
 ## Organização por tópicos
@@ -108,7 +108,7 @@ Os módulos iniciais são NetworkManager, gerenciador nativo do Alpine, Flatpak 
 
 ## Empacotamento
 
-A pasta `packaging/` contém um exemplo inicial de `APKBUILD`. O pacote deverá instalar o comando `rokko-setup` em `/usr/bin/rokko-setup` e os módulos compartilhados em `/usr/share/rokko-setup/`. O formato final, a versão mínima suportada e as dependências serão definidos depois da validação dos procedimentos e da política de empacotamento do Alpine.
+A pasta `packaging/` contém um exemplo inicial de `APKBUILD`. O pacote deverá instalar o comando `alp-setup` em `/usr/bin/alp-setup`. O antigo comando `rokko-setup` também é instalado como compatibilidade temporária. Os módulos compartilhados continuam em `/usr/share/rokko-setup/` para preservar instalações existentes. O formato final, a versão mínima suportada e as dependências serão definidos depois da validação dos procedimentos e da política de empacotamento do Alpine.
 
 ## Princípios do projeto
 

@@ -12,6 +12,7 @@ source=""
 build() { :; }
 
 package() {
+    install -Dm755 "$srcdir/../../bin/alp-setup" "$pkgdir/usr/bin/alp-setup"
     install -Dm755 "$srcdir/../../bin/rokko-setup" "$pkgdir/usr/bin/rokko-setup"
     install -Dm644 "$srcdir/../../README.md" "$pkgdir/usr/share/doc/rokko-setup/README.md"
     install -d "$pkgdir/usr/share/rokko-setup/lib" "$pkgdir/usr/share/rokko-setup/modules"

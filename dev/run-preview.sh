@@ -11,8 +11,8 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 fi
 
 git pull --ff-only
-chmod +x bin/rokko-setup
+chmod +x bin/alp-setup bin/rokko-setup
 
 : "${ROKKO_ICON_MODE:=nerd}"
 export ROKKO_ICON_MODE
-exec ./bin/rokko-setup --plan
+exec ./bin/alp-setup --plan

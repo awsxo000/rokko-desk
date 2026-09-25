@@ -10,7 +10,7 @@ SHOW_INFO=0
 
 usage() {
     cat <<USAGE
-Uso: rokko-setup [opções]
+Uso: alp-setup [opções]
 
 Assistente guiado e modular do ALPDesk para Alpine Linux.
 
