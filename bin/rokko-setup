@@ -12,7 +12,7 @@ usage() {
     cat <<USAGE
 Uso: alp-setup [opções]
 
-Assistente guiado e modular do ALPDesk para Alpine Linux.
+Assistente guiado e modular do Alp-Desk para Alpine Linux.
 
 Opções:
   --plan       mostra o plano sem alterar o sistema

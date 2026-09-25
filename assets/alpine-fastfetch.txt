@@ -1,20 +1,15 @@
-       .hddddddddddddddddddddddh.
-      :dddddddddddddddddddddddddd:
-     /dddddddddddddddddddddddddddd/
-    +dddddddddddddddddddddddddddddd+
-  `sdddddddddddddddddddddddddddddddds`
- `ydddddddddddd++hdddddddddddddddddddy`
-.hddddddddddd+`  `+ddddh:-sdddddddddddh.
-hdddddddddd+`      `+y:    .sddddddddddh
-ddddddddh+`   `//`   `.`     -sddddddddd
-ddddddh+`   `/hddh/`   `:s-    -sddddddd
-dddddh+`   `/+/dddddh/`   `+s-    -sddddd
-ddddh+`   `/o` :dddddddh/   `oy-    .yddd
-hdddyo+ohddyosdddddddddho+oydddy++ohdddh
-.hddddddddddddddddddddddddddddddddddddh.
- `yddddddddddddddddddddddddddddddddddy`
-  `sdddddddddddddddddddddddddddddddds`
-    +dddddddddddddddddddddddddddddd+
-     /dddddddddddddddddddddddddddd/
-      :dddddddddddddddddddddddddd:
-       .hddddddddddddddddddddddh.
+                          /\
+                         /  \
+                /\      /    \      /\
+               /  \    /      \    /  \
+              /    \__/        \__/    \
+             /                          \
+            /                            \
+           /                              \
+          /                                \
+         /                                  \
+        /                                    \
+       /                                      \
+      /                                        \
+     /                                          \
+    /____________________________________________\

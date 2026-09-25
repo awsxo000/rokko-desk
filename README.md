@@ -1,6 +1,6 @@
-# ALPDesk
+# Alp-Desk
 
-**ALPDesk** é uma ferramenta comunitária, modular e guiada para preparar o Alpine Linux como ambiente desktop, com foco inicial em jogos, Flatpak e uso diário.
+**Alp-Desk** é uma ferramenta comunitária, modular e guiada para preparar o Alpine Linux como ambiente desktop, com foco inicial em jogos, Flatpak e uso diário.
 
 O comando oficial do projeto é:
 
@@ -12,7 +12,7 @@ alp-setup
 
 ## Personalidade
 
-O ALPDesk funciona como um guia técnico de preparação do sistema: explica cada etapa, apresenta as escolhas de forma clara e não aplica alterações sem uma confirmação explícita do usuário. A ferramenta deve ser amigável sem ser infantil e técnica sem exigir conhecimento desnecessário. O comando oficial é `alp-setup`; `rokko-setup` permanece apenas como compatibilidade temporária.
+O Alp-Desk funciona como um guia técnico de preparação do sistema: explica cada etapa, apresenta as escolhas de forma clara e não aplica alterações sem uma confirmação explícita do usuário. A ferramenta deve ser amigável sem ser infantil e técnica sem exigir conhecimento desnecessário. O comando oficial é `alp-setup`; `rokko-setup` permanece apenas como compatibilidade temporária.
 
 ## Uso
 
@@ -36,7 +36,7 @@ A opção `--yes` aceita as escolhas padrão da primeira versão e é útil para
 
 A execução real exige Alpine Linux e privilégios de root. O modo `--plan` pode ser executado em outro sistema para validar o fluxo da interface.
 
-O banner principal usa a arte Alpine no estilo visual do Fastfetch, com **ALPDesk** como subtítulo. A arte fica armazenada localmente para não executar Fastfetch nem recalcular informações a cada movimento do menu; o FIGlet permanece como fallback.
+O banner principal usa a arte Alpine no estilo visual do Fastfetch, com **Alp-Desk** como subtítulo. A arte fica armazenada localmente para não executar Fastfetch nem recalcular informações a cada movimento do menu; o FIGlet permanece como fallback.
 
 Durante o uso interativo, navegue pelas opções com as teclas **↑** e **↓** e pressione **Enter** para selecionar. A interface usa `gum` para cores e estilo, a logo Alpine em estilo Fastfetch e um TUI próprio para o painel arredondado, a faixa selecionada e o rodapé fixo. O painel usa uma largura maior, uma coluna exclusiva para os ícones e espaçamento reforçado entre ícone e rótulo. Abaixo do painel, o status usa blocos no estilo **Powerline** para Alpine, CPU, RAM e NET, com separadores em seta e cores independentes. A opção `H` abre a tela de ajuda. A seleção usa uma faixa cyan/azul e os ícones usam Nerd Font por padrão. O tamanho físico do ícone é controlado pelo tamanho da fonte do emulador de terminal; para vê-los maiores, aumente o tamanho da JetBrainsMono Nerd Font nas preferências do Konsole. Se a fonte não estiver configurada no terminal, use `ROKKO_ICON_MODE=fallback` para símbolos comuns ou `ROKKO_ICON_MODE=none` para ocultá-los.
 
@@ -118,7 +118,7 @@ A pasta `packaging/` contém um exemplo inicial de `APKBUILD`. O pacote deverá 
 - Não presumir NetworkManager em todas as instalações.
 - Registrar claramente as mudanças realizadas.
 - Diferenciar comportamento experimental de comportamento validado.
-- Manter a identidade ALPDesk separada da identidade oficial do Alpine Linux.
+- Manter a identidade Alp-Desk separada da identidade oficial do Alpine Linux.
 
 ## Próximo passo
 

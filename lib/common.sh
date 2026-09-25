@@ -77,7 +77,7 @@ check_gum_deps() {
 }
 
 # ------------------------------------------------------------------------
-# Banner Alpine no estilo Fastfetch + subtítulo "ALPDesk", centralizados
+# Banner Alpine no estilo Fastfetch + subtítulo "Alp-Desk", centralizados
 # na largura do terminal. O asset local evita executar fastfetch a cada
 # tecla; FIGlet permanece como fallback para instalações antigas.
 # Sem TTY (ex.: saída redirecionada) cai para um cabeçalho simples.
@@ -102,7 +102,7 @@ render_banner() {
             pad=$(( (cols - len) / 2 )); [ "$pad" -lt 0 ] && pad=0
             printf '%*s%b%s%b\n' "$pad" '' "$banner_color" "$line" "$reset_color"
         done
-        sub='ALPDesk'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
+        sub='Alp-Desk'; sublen=${#sub}; subpad=$(( (cols - sublen) / 2 )); [ "$subpad" -lt 0 ] && subpad=0
         printf '%*s%b%s%b\n\n' "$subpad" '' "$subtitle_color" "$sub" "$reset_color"
         printf '%b%s%b\n' "$banner_color" "$(repeat_char '─' "$cols")" "$reset_color"
         return 0
@@ -129,7 +129,7 @@ render_banner() {
             gum style --foreground="#37E6FF" --bold -- "$line"
         done
 
-        sub='ALPDesk'
+        sub='Alp-Desk'
         sublen=${#sub}
         subpad=$(( (cols - sublen) / 2 ))
         [ "$subpad" -lt 0 ] && subpad=0
@@ -140,7 +140,7 @@ render_banner() {
         gum style --foreground="#1FA6BD" -- "$(printf '─%.0s' $(seq 1 "$cols"))"
         printf '\n'
     else
-        printf '\n== ALPINE ALPDesk ==\n\n'
+        printf '\n== ALPINE Alp-Desk ==\n\n'
     fi
 }
 
@@ -305,7 +305,7 @@ show_help_screen() {
     render_banner
     help_width=64
     printf '╭%s╮\n' "$(repeat_char '─' "$help_width")"
-    printf '│ %s │\n' "$(pad_to_width 'Ajuda do ALPDesk' "$help_width")"
+    printf '│ %s │\n' "$(pad_to_width 'Ajuda do Alp-Desk' "$help_width")"
     printf '├%s┤\n' "$(repeat_char '─' "$help_width")"
     printf '│ %s │\n' "$(pad_to_width '↑/↓ ou J/K   Navegar pelas opções' "$help_width")"
     printf '│ %s │\n' "$(pad_to_width 'Enter         Abrir o tópico selecionado' "$help_width")"
