@@ -46,7 +46,7 @@ sudo apk add gum figlet
 
 ## Organização por tópicos
 
-A interface principal organiza a configuração em tópicos independentes. O usuário entra em `Rede`, `Flatpak` ou `Ferramentas de desktop e jogos`, configura aquele assunto e retorna ao menu principal. Em seguida, pode revisar o plano completo antes de aplicar qualquer alteração. O tópico de rede possui um submenu próprio para escolher NetworkManager, o gerenciador nativo do Alpine, manutenção da configuração atual ou restauração do padrão nativo. Em terminais largos, o menu principal apresenta a linha de status do sistema abaixo da seleção; em terminais menores, a interface continua compacta para evitar quebras.
+A interface principal organiza a configuração em tópicos independentes. O usuário entra em `Rede`, `Flatpak` ou `Ferramentas de desktop e jogos`, configura aquele assunto e retorna ao menu principal. Em seguida, pode revisar o plano completo antes de aplicar qualquer alteração. O tópico de rede possui um submenu próprio para escolher NetworkManager, o gerenciador nativo do Alpine, manutenção da configuração atual ou restauração do padrão nativo. A linha de status apresenta a versão do Alpine, uso estimado da CPU, memória, conectividade e o rótulo `Net`, seguindo a referência visual. Em terminais menores, a interface continua compacta para evitar quebras.
 
 ## Arquitetura
 

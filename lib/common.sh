@@ -82,36 +82,53 @@ render_banner() {
 
 # ------------------------------------------------------------------------
 # Status do sistema, no formato "campo|campo|campo|campo" para ser
-# desmembrado pelo chamador. "Load" (1 min) é usado em vez de um "CPU %"
-# inventado, porque é o dado que dá para calcular de forma confiável em
-# sh puro a partir de /proc/loadavg.
+# desmembrado pelo chamador. A CPU é calculada por duas amostras de /proc/stat.
 # ------------------------------------------------------------------------
+cpu_snapshot() {
+    awk '/^cpu / { print $2+$3+$4+$5+$6+$7+$8, $5+$6; exit }' /proc/stat 2>/dev/null
+}
+
+cpu_usage_percent() {
+    cpu_first=$(cpu_snapshot || true)
+    sleep 0.2
+    cpu_second=$(cpu_snapshot || true)
+    set -- $cpu_first
+    cpu_total_first=${1:-0}
+    cpu_idle_first=${2:-0}
+    set -- $cpu_second
+    cpu_total_second=${1:-0}
+    cpu_idle_second=${2:-0}
+    awk -v t1="$cpu_total_first" -v i1="$cpu_idle_first" \
+        -v t2="$cpu_total_second" -v i2="$cpu_idle_second" \
+        'BEGIN { d=t2-t1; if (d > 0) printf "%d", (1-(i2-i1)/d)*100; else printf "-" }'
+}
+
 system_status_panel() {
     status_version=$(cat /etc/alpine-release 2>/dev/null || printf '%s' 'ambiente de teste')
-    status_load=$(awk '{print $1}' /proc/loadavg 2>/dev/null || printf '%s' '-')
+    status_cpu=$(cpu_usage_percent)
     status_mem=$(awk '/MemTotal:/ { total=$2 } /MemAvailable:/ { available=$2 } END { if (total) printf "%.1f/%.1f GB", (total-available)/1048576, total/1048576; else print "-" }' /proc/meminfo 2>/dev/null)
     if command -v ip >/dev/null 2>&1 && ip route show default 2>/dev/null | grep -q .; then
-        status_net='conectada'
+        status_net='Conectado'
     else
-        status_net='não detectada'
+        status_net='Desconectado'
     fi
-    printf '%s\n' "$status_version|$status_load|$status_mem|$status_net"
+    printf '%s\n' "$status_version|$status_cpu|$status_mem|$status_net"
 }
 
 render_status_line() {
     status_data=$(system_status_panel)
     status_version=${status_data%%|*}
     status_rest=${status_data#*|}
-    status_load=${status_rest%%|*}
+    status_cpu=${status_rest%%|*}
     status_rest=${status_rest#*|}
     status_mem=${status_rest%%|*}
     status_net=${status_rest#*|}
 
     if command -v gum >/dev/null 2>&1 && [ -t 1 ]; then
         gum style --foreground="#8A8A8A" -- \
-            "Alpine ${status_version} │ Load: ${status_load} │ RAM: ${status_mem} │ Rede: ${status_net}"
+            "Alpine ${status_version} │ CPU: ${status_cpu}% │ RAM: ${status_mem} │ Net: ${status_net}"
     else
-        printf '%s\n' "Alpine ${status_version} │ Load: ${status_load} │ RAM: ${status_mem} │ Rede: ${status_net}"
+        printf '%s\n' "Alpine ${status_version} │ CPU: ${status_cpu}% │ RAM: ${status_mem} │ Net: ${status_net}"
     fi
 }
 
